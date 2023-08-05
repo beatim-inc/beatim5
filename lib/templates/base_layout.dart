@@ -5,7 +5,7 @@ abstract class BaseLayout extends StatelessWidget {
   String get title;
   String get explanation;
   Widget mainContent(BuildContext context);
-  String get buttonlabel;
+  Widget buttomContent(BuildContext context);
 
   @override
   Widget build(BuildContext context) {
@@ -52,20 +52,7 @@ abstract class BaseLayout extends StatelessWidget {
               child: mainContent(context)),
           Padding(
             padding: const EdgeInsets.only(top:10.0),
-            child: SizedBox(
-              width: 224,
-              height: 58,
-              child: ElevatedButton(
-                onPressed:(){} ,
-                  child:
-                  Text(
-                      buttonlabel,
-                      style: TextStyle(
-                        fontSize: 24
-                      ),
-                  ),
-              ),
-            ),
+            child: buttomContent(context),
           )
         ],
       ),
