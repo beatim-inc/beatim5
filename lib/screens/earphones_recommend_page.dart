@@ -1,3 +1,4 @@
+import 'package:beatim5/screens/choose_playlist_page.dart';
 import 'package:beatim5/templates/base_layout.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +21,17 @@ class EarphoneRecommendPage extends BaseLayout {
 
   @override
   Widget buttomContent(BuildContext context) {
-    return PageTransitionButton('OK');
+    return PageTransitionButton(
+        'OK',
+      (){
+        Navigator.push<void>(
+          context,
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => ChoosePlaylistPage(),
+          ),
+        );
+      }
+
+    );
   }
 }

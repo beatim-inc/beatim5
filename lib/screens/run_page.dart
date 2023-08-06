@@ -1,3 +1,5 @@
+import 'package:beatim5/screens/choose_playlist_page.dart';
+import 'package:beatim5/screens/finish_run_page.dart';
 import 'package:beatim5/templates/base_layout.dart';
 import 'package:beatim5/widgets/music_controll_button.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
@@ -28,9 +30,27 @@ class RunPage extends BaseLayout {
   Widget buttomContent(BuildContext context) {
     return Column(
       children: [
-        PageTransitionButton('Finish Running'),
+        PageTransitionButton(
+            'Finish Running',
+          Navigator.push<void>(
+            context,
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => FinishRunPage(),
+            ),
+          ),
+        ),
         SizedBox(height: 10,),
-        PageTransitionButton('Switch walking')
+        PageTransitionButton(
+            'Switch walking',
+            () {
+              Navigator.push<void>(
+                context,
+                MaterialPageRoute<void>(
+                  builder: (BuildContext context) => ChoosePlaylistPage(),
+                ),
+              );
+            }
+        )
       ],
     );
   }

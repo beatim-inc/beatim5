@@ -21,6 +21,17 @@ class DataCollectAgreePage extends BaseLayout {
 
   @override
   Widget buttomContent(BuildContext context){
-    return PageTransitionButton('Agree');
+    return PageTransitionButton(
+        'Agree',
+      (){
+        Navigator.push<void>(
+          context,
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => EarphoneRecommendPage(),
+          ),
+        );
+      }
+
+    );
   }
 }

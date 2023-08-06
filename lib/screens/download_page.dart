@@ -1,6 +1,8 @@
+import 'package:beatim5/screens/run_page.dart';
 import 'package:beatim5/templates/base_layout.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
+import 'package:beatim5/screens/shake_page.dart';
 
 class DownloadPage extends BaseLayout {
   @override
@@ -20,7 +22,18 @@ class DownloadPage extends BaseLayout {
 
   @override
   Widget buttomContent(BuildContext context){
-    return PageTransitionButton('Start Running!');
+    return PageTransitionButton(
+        'Start Running!',
+      (){
+        Navigator.push<void>(
+          context,
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => ShakePage(),
+          ),
+        );
+      }
+
+    );
   }
 
 }

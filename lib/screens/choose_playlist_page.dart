@@ -1,3 +1,4 @@
+import 'package:beatim5/screens/download_page.dart';
 import 'package:beatim5/templates/base_layout.dart';
 import 'package:beatim5/widgets/header.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
@@ -23,6 +24,16 @@ class ChoosePlaylistPage extends BaseLayout {
 
   @override
   Widget buttomContent(BuildContext context){
-    return PageTransitionButton('Download');
+    return PageTransitionButton(
+        'Download',
+      (){
+        Navigator.push<void>(
+          context,
+          MaterialPageRoute<void>(
+            builder: (BuildContext context) => DownloadPage(),
+          ),
+        );
+      }
+    );
   }
 }
