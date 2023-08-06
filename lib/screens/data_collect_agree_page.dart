@@ -12,10 +12,10 @@ class DataCollectAgreePage extends BaseLayout {
   @override
   Widget mainContent(BuildContext context) {
     return Center(
-     child: Padding(
-       padding: const EdgeInsets.all(40.0),
-       child: Image.asset('images/logo.png'),
-     ),
+      child: Padding(
+        padding: const EdgeInsets.all(40.0),
+        child: Image.asset('images/logo.png'),
+      ),
     );
   }
 
