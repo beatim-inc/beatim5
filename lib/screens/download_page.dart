@@ -1,12 +1,11 @@
-import 'package:beatim5/screens/earphones_recommend_page.dart';
 import 'package:beatim5/templates/base_layout.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
 
-class DataCollectAgreePage extends BaseLayout {
+class DownloadPage extends BaseLayout {
   @override
-  String get title => 'About your running';
-  String get explanation => 'Collect log\nCan you agree the privacy policy?';
+  String get title => 'Downloading...';
+  String get explanation => 'That’s all for preparations\nAre you ready for running?';
 
 
   @override
@@ -21,6 +20,7 @@ class DataCollectAgreePage extends BaseLayout {
 
   @override
   Widget buttomContent(BuildContext context){
-    return PageTransitionButton('Agree');
+    return PageTransitionButton('Start Running!');
   }
+
 }

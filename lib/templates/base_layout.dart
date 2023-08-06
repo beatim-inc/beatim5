@@ -20,15 +20,15 @@ abstract class BaseLayout extends StatelessWidget {
             child: Container(
               width: 352,
               height: 52,
-                child: Center(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
+              child: Center(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+              ),
             ),
           ),
           Padding(
@@ -36,19 +36,19 @@ abstract class BaseLayout extends StatelessWidget {
             child: Container(
               width: 280,
               height: 83,
-                child: Center(
-                    child: Text(
-                      explanation,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+              child: Center(
+                child: Text(
+                  explanation,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+              ),
             ),
           ),
           Container(
-            height: 400,
+              height: 400,
               child: mainContent(context)),
           Padding(
             padding: const EdgeInsets.only(top:10.0),
