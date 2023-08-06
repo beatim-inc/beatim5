@@ -1,11 +1,11 @@
 import 'package:beatim5/templates/base_layout.dart';
+import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
 
 class WelcomePage extends BaseLayout {
   @override
   String get title => 'Beatim Runner';
   String get explanation => 'Welcome';
-  String get buttonlabel => 'Get Started';
 
 
   @override
@@ -16,5 +16,10 @@ class WelcomePage extends BaseLayout {
         child: Image.asset('images/logo.png'),
       ),
     );
+  }
+
+  @override
+  Widget buttomContent(BuildContext context) {
+    return PageTransitionButton('Answer');
   }
 }
