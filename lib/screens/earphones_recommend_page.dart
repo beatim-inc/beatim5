@@ -1,11 +1,11 @@
 import 'package:beatim5/templates/base_layout.dart';
+import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
 
 class EarphoneRecommendPage extends BaseLayout {
   @override
   String get title => 'Use Earphones';
   String get explanation => 'For the best experience, we suggest using earphones while using this app.';
-  String get buttonlabel => 'OK';
 
 
   @override
@@ -16,5 +16,10 @@ class EarphoneRecommendPage extends BaseLayout {
         child: Image.asset('images/logo.png'),
       ),
     );
+  }
+
+  @override
+  Widget buttomContent(BuildContext context) {
+    return PageTransitionButton('OK');
   }
 }

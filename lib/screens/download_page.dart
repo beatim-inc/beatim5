@@ -1,11 +1,11 @@
 import 'package:beatim5/templates/base_layout.dart';
+import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
 
 class DownloadPage extends BaseLayout {
   @override
   String get title => 'Downloading...';
   String get explanation => 'That’s all for preparations\nAre you ready for running?';
-  String get buttonlabel => 'Start Running!';
 
 
   @override
@@ -17,4 +17,10 @@ class DownloadPage extends BaseLayout {
       ),
     );
   }
+
+  @override
+  Widget buttomContent(BuildContext context){
+    return PageTransitionButton('Start Running!');
+  }
+
 }

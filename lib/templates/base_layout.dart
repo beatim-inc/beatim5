@@ -5,7 +5,7 @@ abstract class BaseLayout extends StatelessWidget {
   String get title;
   String get explanation;
   Widget mainContent(BuildContext context);
-  String get buttonlabel;
+  Widget buttomContent(BuildContext context);
 
   @override
   Widget build(BuildContext context) {
@@ -20,15 +20,15 @@ abstract class BaseLayout extends StatelessWidget {
             child: Container(
               width: 352,
               height: 52,
-                child: Center(
-                  child: Text(
-                    title,
-                    style: const TextStyle(
-                      fontSize: 32,
-                      fontWeight: FontWeight.bold,
-                    ),
+              child: Center(
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 32,
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
+              ),
             ),
           ),
           Padding(
@@ -36,36 +36,23 @@ abstract class BaseLayout extends StatelessWidget {
             child: Container(
               width: 280,
               height: 83,
-                child: Center(
-                    child: Text(
-                      explanation,
-                      style: TextStyle(
-                        fontSize: 17,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+              child: Center(
+                child: Text(
+                  explanation,
+                  style: TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+              ),
             ),
           ),
           Container(
-            height: 400,
+              height: 400,
               child: mainContent(context)),
           Padding(
             padding: const EdgeInsets.only(top:10.0),
-            child: SizedBox(
-              width: 224,
-              height: 58,
-              child: ElevatedButton(
-                onPressed:(){} ,
-                  child:
-                  Text(
-                      buttonlabel,
-                      style: TextStyle(
-                        fontSize: 24
-                      ),
-                  ),
-              ),
-            ),
+            child: buttomContent(context),
           )
         ],
       ),
