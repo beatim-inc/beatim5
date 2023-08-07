@@ -20,6 +20,9 @@ class FinishRunPage extends BaseLayout {
 
   @override
   Widget buttomContent(BuildContext context) {
-    return PageTransitionButton('Answer');
+    return PageTransitionButton(
+        'Answer',
+      null
+    );
   }
 }

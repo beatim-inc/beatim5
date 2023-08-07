@@ -3,8 +3,9 @@ import 'package:flutter/material.dart';
 class PageTransitionButton extends StatelessWidget {
 
   final String buttonlabel;
+  final onPressed;
 
-  const PageTransitionButton(this.buttonlabel,{Key? key}) : super(key: key);
+  const PageTransitionButton(this.buttonlabel,this.onPressed,{Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +13,7 @@ class PageTransitionButton extends StatelessWidget {
       width: 224,
       height: 58,
       child: ElevatedButton(
-        onPressed:(){} ,
+        onPressed: onPressed,
         child:
         Text(
           buttonlabel,
