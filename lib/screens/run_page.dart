@@ -42,15 +42,8 @@ class RunPage extends BaseLayout {
         SizedBox(height: 10,),
         PageTransitionButton(
             'Switch walking',
-            () {
-              Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (BuildContext context) => ChoosePlaylistPage(),
-                ),
-              );
-            }
-        )
+            null
+            )
       ],
     );
   }
