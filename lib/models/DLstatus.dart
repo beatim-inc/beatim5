@@ -1,0 +1,4 @@
+enum DownloadStatus {
+  notDownloaded,
+  downloaded,
+}
