@@ -1,3 +1,5 @@
+import 'package:beatim5/models/DLstatus.dart';
+import 'package:beatim5/widgets/download_button.dart';
 import 'package:flutter/material.dart';
 
  class header extends StatelessWidget {
@@ -5,8 +7,11 @@ import 'package:flutter/material.dart';
   final String title;
   final String subtitile1;
   final String menu;
-  
-  const header(this.thumbnail,this.title,this.subtitile1,this.menu,{Key? key}) : super(key: key);
+  final DownloadStatus downloadStatus;
+  final onPressedIfNotDownloaded;
+  final onPressedIfDownloaded;
+
+  const header(this.thumbnail,this.title,this.subtitile1,this.menu,this.downloadStatus,this.onPressedIfNotDownloaded,this.onPressedIfDownloaded,{Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +32,8 @@ import 'package:flutter/material.dart';
                 Text(subtitile1),
                 Text(menu),
               ],
-            )
+            ),
+            DownloadButton(downloadStatus, onPressedIfNotDownloaded, onPressedIfDownloaded)
           ],
         ),
       ),
