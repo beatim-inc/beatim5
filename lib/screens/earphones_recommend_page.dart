@@ -27,10 +27,6 @@ class EarphoneRecommendPage extends BaseLayout {
     return PageTransitionButton(
         'OK',
       (){
-        DLMusicInfoFromFireStore();
-        DLMusicPlayListsFromFireStore();
-        debugPrint(playlistName[0]);
-        debugPrint(playlistExplanation[0]);
         Navigator.push<void>(
           context,
           MaterialPageRoute<void>(
@@ -41,35 +37,4 @@ class EarphoneRecommendPage extends BaseLayout {
 
     );
   }
-}
-
-int DLMusicInfoFromFireStore(){
-  var db1 = FirebaseFirestore.instance;
-  db1.collection("MusicInfo").get().then(
-        (querySnapshot) {
-      print("Successfully completed");
-      for (var docSnapshot in querySnapshot.docs) {
-        print('${docSnapshot.id} => ${docSnapshot.data()}');
-      }
-    },
-    onError: (e) => print("Error completing: $e"),
-  );
-  return 0;
-}
-
-int DLMusicPlayListsFromFireStore() {
-  var db2 = FirebaseFirestore.instance;
-  List<List<String>> playlistDisplayContents = [];
-  db2.collection("MusicPlaylists").get().then(
-        (querySnapshot) {
-      print("Successfully completed");
-      for (var docSnapshot in querySnapshot.docs) {
-        print('${docSnapshot.id} => ${docSnapshot.data()}');
-        playlistName.add(docSnapshot.id);
-        playlistExplanation.add('${docSnapshot.data()}');
-      }
-    },
-    onError: (e) => print("Error completing: $e"),
-  );
-  return 0;
 }

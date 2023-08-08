@@ -1,2 +1,1 @@
-List<String> playlistName = [];
-List<String> playlistExplanation = [];
+List<String>MusicPlaylist = [];
