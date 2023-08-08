@@ -28,7 +28,7 @@ class WelcomePage extends BaseLayout {
             Navigator.push<void>(
                 context,
                 MaterialPageRoute<void>(
-                  builder: (BuildContext context) =>  DataCollectAgreePage(),
+                  builder: (BuildContext context) =>  EarphoneRecommendPage(),
                 )
             );
           },
