@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 
 abstract class BaseLayout extends StatelessWidget {
   // それぞれの継承クラスが上書きするべきメソッド
-
   String get title;
   String get explanation;
   Widget mainContent(BuildContext context);
