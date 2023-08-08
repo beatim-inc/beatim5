@@ -210,24 +210,26 @@ class _ShakePageState extends State<ShakePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Text(
-                'BPM ${playbackBpm.round()}',
-                style: Theme.of(context).textTheme.headlineMedium,
-              ),
-              Text(
-                '$counter / ${_intervals.length}',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-            ],
-          )
-        ],
-      ),
+      body: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text(
+                  'BPM ${playbackBpm.round()}',
+                  style: Theme.of(context).textTheme.headlineMedium,
+                ),
+                Text(
+                  '$counter / ${_intervals.length}',
+                  style: Theme.of(context).textTheme.headlineSmall,
+                ),
+              ],
+            )
+          ],
+        ),
+      )
     );
   }
 }
