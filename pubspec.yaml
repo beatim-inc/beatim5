@@ -48,6 +48,9 @@ dependencies:
   file_saver: ^0.2.4
   firebase_core: ^2.15.0
 
+  cloud_firestore: ^4.8.4
+  firebase_storage: ^11.2.5
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
