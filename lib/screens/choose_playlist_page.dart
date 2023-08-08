@@ -6,7 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
+import 'package:beatim5/models/DLstatus.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:beatim5/models/DLstatus.dart';
+
+List downloadStatus=[DownloadStatus.notDownloaded,DownloadStatus.notDownloaded];
 
 class ChoosePlaylistPage extends StatefulWidget {
   const ChoosePlaylistPage({Key? key}) : super(key: key);
@@ -16,12 +20,6 @@ class ChoosePlaylistPage extends StatefulWidget {
 }
 
 class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
-
-  @override
-  void initState(){
-    super.initState();
-    DLMusicInfoFromFireStore();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -67,20 +65,30 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
               height: 400,
               child:
                   FutureBuilder<String>(
-                    future:DLMusicPlayListsFromFireStore(),
+                    future:DLMusicInfoAndMusicPlayListsFromFireStore(),
                     builder: (context,snapshot){
                       if (snapshot.connectionState == ConnectionState.waiting) {
                         debugPrint('loading');
-                        return  header('images/logo.png', 'loading', '2.8MB', 'tmp');
+                        return  Text('loading');
                       } else if (snapshot.hasError) {
                         debugPrint('error');
-                        return  header('images/logo.png', 'error', '2.8MB', 'tmp');
+                        return  Text('error');
                       } else {
                         debugPrint('completed');
                         return  ListView.builder(
                           itemCount: MusicPlaylist.length,
                             itemBuilder: (BuildContext context,int index){
-                            return header('images/logo.png', MusicPlaylist[index], '2.8MB', 'tmp');
+                            return header(
+                              'images/logo.png',
+                              MusicPlaylist[index],
+                              '2.8MB',
+                              'tmp',
+                              DownloadStatus.notDownloaded,
+                                (){
+                                DLMusicFromCloudStrage(index);
+                                },
+                              null
+                            );
                          }
                         );
                       }
@@ -92,13 +100,16 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
               child: PageTransitionButton(
                   'Download',
                 (){
-                    DLMusicFromCloudStrage();
-                    Navigator.push<void>(
-                      context,
-                      MaterialPageRoute<void>(
-                      builder: (BuildContext context) => DownloadPage(),
-                      ),
-                    );
+                    if (downloadStatus.contains(DownloadStatus.downloaded)){
+                      Navigator.push<void>(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) => DownloadPage(),
+                        ),
+                      );
+                    }else{
+                      null;
+                    }
                   }
               ),
           )
@@ -108,7 +119,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
   }
 }
 
-void DLMusicFromCloudStrage() async{
+void DLMusicFromCloudStrage(int playlistNumber) async{
   final storageRef = FirebaseStorage.instance.ref('128_long_BPM124.mp3');
 
   final appDocDir = await getApplicationDocumentsDirectory();
@@ -128,6 +139,7 @@ void DLMusicFromCloudStrage() async{
         break;
       case TaskState.success:
       debugPrint('success');
+      downloadStatus[playlistNumber] = DownloadStatus.downloaded;
         break;
       case TaskState.canceled:
       debugPrint('canceled');
@@ -139,7 +151,8 @@ void DLMusicFromCloudStrage() async{
   });
 }
 
-void DLMusicInfoFromFireStore(){
+
+Future<String> DLMusicInfoAndMusicPlayListsFromFireStore() async{
   var db1 = FirebaseFirestore.instance;
   db1.collection("MusicInfo").get().then(
         (querySnapshot) {
@@ -150,10 +163,6 @@ void DLMusicInfoFromFireStore(){
     },
     onError: (e) => print("Error completing: $e"),
   );
-  return;
-}
-
-Future<String> DLMusicPlayListsFromFireStore() async{
   var db2 = FirebaseFirestore.instance;
   await db2.collection("MusicPlaylists").get().then(
         (querySnapshot) {
