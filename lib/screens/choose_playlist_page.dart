@@ -125,6 +125,7 @@ void DLMusicFromCloudStrage(int playlistNumber) async{
   final appDocDir = await getApplicationDocumentsDirectory();
   final filePath = "${appDocDir.path}/128_long_BPM124.mp3";
   print(filePath);
+  musics[0] = filePath;
   final file = File(filePath);
   debugPrint('$file');
 
