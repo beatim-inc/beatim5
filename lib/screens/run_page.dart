@@ -1,11 +1,13 @@
 import 'package:beatim5/screens/choose_playlist_page.dart';
 import 'package:beatim5/screens/finish_run_page.dart';
+import 'package:beatim5/screens/shake_page.dart';
 import 'package:beatim5/templates/base_layout.dart';
 import 'package:beatim5/widgets/music_controll_button.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:beatim5/models/musicdata.dart';
+import 'package:beatim5/models/music_data.dart';
 
 class RunPage extends StatefulWidget {
   final double playbackBpm;
@@ -18,87 +20,119 @@ class RunPage extends StatefulWidget {
 
 class _RunPageState extends State<RunPage> {
   final double playbackBpm;
+  AudioPlayer player = AudioPlayer();
+
   _RunPageState({required this.playbackBpm});
 
-  @override
-  void initState(){
-    AudioPlayer player = AudioPlayer();
+  void generateMusicPlaylist() {
     final playList = ConcatenatingAudioSource(
       useLazyPreparation: true,
-      children:
-      List.generate(
-          musics.length, (index) =>AudioSource.file(musics[index])),
+      children: List.generate(
+          musics.length, (index) => AudioSource.file(musics[index])),
     );
-    player.setAudioSource(playList, initialIndex: 0, initialPosition: Duration.zero);
+    player.setAudioSource(playList,
+        initialIndex: 0, initialPosition: Duration.zero);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    generateMusicPlaylist();
     player.play();
-    player.setSpeed(playbackBpm/124);
+    player.setSpeed(playbackBpm / 124);
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Run Page'),
-      ),
-      body: Center(
-        child: Text(
-          'BPM: ${widget.playbackBpm}',
-          style: const TextStyle(fontSize: 24),
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
         ),
-      ),
-    );
+        body: Center(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 50,
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 30),
+                child: SizedBox(
+                  width: 352,
+                  // explanation SizedBox の Width が 83　なので 52, 135
+                  height: 52,
+                  child: Center(
+                    child: Text(
+                      "走りはどうですか？",
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              const Padding(
+                  padding: EdgeInsets.only(top: 14),
+                  child: SizedBox(
+                    width: 280,
+                    height: 83,
+                    child: Center(
+                      child: Text(
+                        "音楽の再生速度を再変更したい場合、走りを終了したい場合は以下のボタンを押してください",
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  )),
+              const SizedBox(
+                height: 20,
+              ),
+              SvgPicture.asset(
+                'images/exercise.svg',
+                semanticsLabel: 'Running',
+                width: 200,
+                height: 200,
+              ),
+              const SizedBox(
+                height: 20,
+              ),
+              Text(
+                '最適なBPM',
+                style: Theme.of(context).textTheme.headlineSmall,
+              ),
+              Text(
+                '${widget.playbackBpm.round()}',
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: PageTransitionButton('再生速度を変更', () {
+                  player.stop();
+                  Navigator.push<void>(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext context) => const ShakePage(),
+                    ),
+                  );
+                }),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(top: 10.0),
+                child: PageTransitionButton('走りを終了', () {
+                  player.stop();
+                  Navigator.push<void>(
+                    context,
+                    MaterialPageRoute<void>(
+                      builder: (BuildContext context) => FinishRunPage(),
+                    ),
+                  );
+                }),
+              )
+            ],
+          ),
+        ));
   }
 }
-
-
-// class RunPage extends BaseLayout {
-//
-//   @override
-//   String get title => 'Running !';
-//   @override
-//   String get explanation => 'Start running!\nGrip your smartphone and start swinging your arm\nMusic automatically starts.';
-//
-//   @override
-//   Widget mainContent(BuildContext context) {
-//     return Center(
-//       child: Column(
-//         children: [
-//           Padding(
-//             padding: const EdgeInsets.fromLTRB(70.0,20.0,70.0,0.0),
-//             child: Image.asset('images/logo.png'),
-//           ),
-//           const MusicControllButton(),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   @override
-//   Widget buttomContent(BuildContext context) {
-//     return Column(
-//       children: [
-//         PageTransitionButton(
-//             'Finish Running',
-//           Navigator.push<void>(
-//             context,
-//             MaterialPageRoute<void>(
-//               builder: (BuildContext context) => FinishRunPage(),
-//             ),
-//           ),
-//         ),
-//         const SizedBox(height: 10,),
-//         PageTransitionButton(
-//             'Switch walking',
-//             () {
-//               Navigator.push<void>(
-//                 context,
-//                 MaterialPageRoute<void>(
-//                   builder: (BuildContext context) => ChoosePlaylistPage(),
-//                 ),
-//               );
-//             }
-//         )
-//       ],
-//     );
-//   }
-// }

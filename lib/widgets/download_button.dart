@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:beatim5/models/DLstatus.dart';
+import 'package:beatim5/models/download_status.dart';
+import 'package:flutter_svg/svg.dart';
 
 @immutable
 class DownloadButton extends StatelessWidget {
@@ -13,22 +14,32 @@ class DownloadButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if(downloadStatus == DownloadStatus.notDownloaded){
       return Container(
-        height: 40,
-        width: 160,
+        height: 50,
+        width: 50,
         color: Colors.orange,
         child: ElevatedButton(
-          child: Text('Download'),
           onPressed:onPressedIfNotDownloaded,
+          child: SvgPicture.asset(
+            'images/download.svg',
+            semanticsLabel: 'privacy policy',
+            width: 30,
+            height: 30,
+          ),
         ),
       );
     }else{
       return Container(
-          height: 40,
-          width: 80,
+          height: 50,
+          width: 50,
           color: Colors.grey,
           child: ElevatedButton(
-            child: Text('Download Completed'),
-              onPressed:onPressedIfDownloaded,
+            onPressed:onPressedIfDownloaded,
+            child: SvgPicture.asset(
+              'images/complete.svg',
+              semanticsLabel: 'privacy policy',
+              width: 30,
+              height: 30,
+            ),
           ),
       );
     }

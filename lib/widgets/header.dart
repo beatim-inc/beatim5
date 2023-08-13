@@ -1,4 +1,4 @@
-import 'package:beatim5/models/DLstatus.dart';
+import 'package:beatim5/models/download_status.dart';
 import 'package:beatim5/widgets/download_button.dart';
 import 'package:flutter/material.dart';
 
