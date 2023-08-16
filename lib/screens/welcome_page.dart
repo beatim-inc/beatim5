@@ -7,15 +7,19 @@ import 'package:flutter/material.dart';
 class WelcomePage extends BaseLayout {
   @override
   String get title => 'Beatim Runner';
-  String get explanation => 'Welcome';
 
+  String get explanation => '検証用プロトタイプ';
 
   @override
   Widget mainContent(BuildContext context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40.0),
-        child: Image.asset('images/logo.png'),
+        child: Image.asset(
+          'images/logo.png',
+          width: 300,
+          height: 300,
+        ),
       ),
     );
   }
@@ -23,15 +27,14 @@ class WelcomePage extends BaseLayout {
   @override
   Widget buttomContent(BuildContext context) {
     return PageTransitionButton(
-      'Get Started',
-          (){
-            Navigator.push<void>(
-                context,
-                MaterialPageRoute<void>(
-                  builder: (BuildContext context) =>  DataCollectAgreePage(),
-                )
-            );
-          },
-        );
+      '始める',
+      () {
+        Navigator.push<void>(
+            context,
+            MaterialPageRoute<void>(
+              builder: (BuildContext context) => DataCollectAgreePage(),
+            ));
+      },
+    );
   }
 }

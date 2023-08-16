@@ -7,6 +7,7 @@ import 'package:beatim5/widgets/counter_display.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:sensors/sensors.dart';
 
 class ShakePage extends StatefulWidget {
@@ -35,10 +36,12 @@ class _ShakePageState extends State<ShakePage> {
       intervalMax = 750,
       nowTime = 0,
       counter = 0;
+
   /* ステップセンシング関係の変数 - END */
 
   /* ボタン関連の変数 - START */
   Timer? _buttonPressedTimer;
+
   /* ボタン関連の変数 - END */
 
   Timer? _timer;
@@ -209,29 +212,85 @@ class _ShakePageState extends State<ShakePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(),
-      body: Center(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Text(
-                  'BPM ${playbackBpm.round()}',
-                  style: Theme.of(context).textTheme.headlineMedium,
+        appBar: AppBar(automaticallyImplyLeading: false, actions: [
+          IconButton(
+            icon: SvgPicture.asset(
+              'images/debug.svg',
+              semanticsLabel: 'Shake Smartphone',
+              width: 20,
+              height: 20,
+            ),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => RunPage(playbackBpm: 160)),
+              );
+            },
+          ),
+        ]),
+        body: Center(
+          child: Column(
+            // mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              const SizedBox(
+                height: 50,
+              ),
+              const Padding(
+                padding: EdgeInsets.only(top: 30),
+                child: SizedBox(
+                  width: 352,
+                  // explanation SizedBox の Width が 83　なので 52, 135
+                  height: 52,
+                  child: Center(
+                    child: Text(
+                      "さあ走りましょう！",
+                      style: TextStyle(
+                        fontSize: 32,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
                 ),
-                Text(
-                  '$counter / ${_intervals.length}',
-                  style: Theme.of(context).textTheme.headlineSmall,
-                ),
-              ],
-            )
-          ],
-        ),
-      )
-    );
+              ),
+              const Padding(
+                  padding: EdgeInsets.only(top: 14),
+                  child: SizedBox(
+                    width: 280,
+                    height: 83,
+                    child: Center(
+                      child: Text(
+                        "スマホを片手で持ち、走るペースに合わせて腕を振って走り始めましょう！音楽は自動で再生されます。",
+                        style: TextStyle(
+                          fontSize: 17,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  )),
+              const SizedBox(
+                height: 50,
+              ),
+              SvgPicture.asset(
+                'images/shake-phone.svg',
+                semanticsLabel: 'Shake Smartphone',
+                width: 200,
+                height: 200,
+              ),
+              const SizedBox(
+                height: 50,
+              ),
+              // Text(
+              //   'BPM ${playbackBpm.round()}',
+              //   style: Theme.of(context).textTheme.headlineMedium,
+              // ),
+              Text(
+                '$counter / ${_intervals.length}',
+                style: Theme.of(context).textTheme.headlineLarge,
+              ),
+            ],
+          ),
+        ));
   }
 }
-
-

@@ -14,10 +14,11 @@ class PageTransitionButton extends StatelessWidget {
       height: 58,
       child: ElevatedButton(
         onPressed: onPressed,
+
         child:
         Text(
           buttonlabel,
-          style: TextStyle(
+          style: const TextStyle(
               fontSize: 24
           ),
         ),

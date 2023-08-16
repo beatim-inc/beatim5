@@ -1,27 +1,32 @@
 import 'package:beatim5/templates/base_layout.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class FinishRunPage extends BaseLayout {
   @override
-  String get title => 'Good job on your run!';
-  String get explanation => 'How was your run this time?\nFor a more satisfying running experience, we would appreciate your cooperation in completing this survey.';
-
+  String get title => 'お疲れ様でした！';
+  String get explanation => 'リズムは合っていましたか？アンケートへのご協力お願いします。';
 
   @override
   Widget mainContent(BuildContext context) {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(40.0),
-        child: Image.asset('images/logo.png'),
+        child: SvgPicture.asset(
+          'images/thumbs-up.svg',
+          semanticsLabel: 'Shake Smartphone',
+          width: 200,
+          height: 200,
+        ),
       ),
     );
   }
 
   @override
   Widget buttomContent(BuildContext context) {
-    return PageTransitionButton(
-        'Answer',
+    return const PageTransitionButton(
+        '回答する',
       null
     );
   }
