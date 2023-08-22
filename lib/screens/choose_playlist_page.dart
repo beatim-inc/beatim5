@@ -1,6 +1,6 @@
 import 'package:beatim5/models/music_data.dart';
+import 'package:beatim5/providers/musicfile_path.dart';
 import 'package:beatim5/screens/shake_page.dart';
-import 'package:beatim5/widgets/header.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -11,12 +11,7 @@ import 'package:beatim5/models/download_status.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:beatim5/models/download_status.dart';
 
-import '../widgets/download_button.dart';
-
-List downloadStatus = [
-  DownloadStatus.notDownloaded,
-  DownloadStatus.notDownloaded
-];
+int selectedPlaylist = -1;
 
 class ChoosePlaylistPage extends StatefulWidget {
   const ChoosePlaylistPage({Key? key}) : super(key: key);
@@ -26,7 +21,7 @@ class ChoosePlaylistPage extends StatefulWidget {
 }
 
 class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
-  // int selectedPlaylistIndex = -1;
+//  int selectedPlaylistIndex = -1;
 
   @override
   Widget build(BuildContext context) {
@@ -86,22 +81,13 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                     } else {
                       debugPrint('completed');
                       return ListView.builder(
-                          itemCount: MusicPlaylist.length,
+                          itemCount: PreparedPlaylist.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Column(
                               children: [
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    // Radio(
-                                    //   value: index,
-                                    //   groupValue: selectedPlaylistIndex,
-                                    //   onChanged: (int? value) {
-                                    //     setState(() {
-                                    //       selectedPlaylistIndex = value!;
-                                    //     });
-                                    //   },
-                                    // ),
                                     SvgPicture.asset(
                                       'images/playlist.svg',
                                       semanticsLabel: 'Music Playlist',
@@ -116,20 +102,32 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            "Title $index",
+                                            PreparedPlaylist[index]['Title'],
                                             style: const TextStyle(
                                               fontSize: 24,
                                             ),
                                           ),
-                                          const Text("Subtitle"),
+                                          Text(PreparedPlaylist[index]['Subtitle']),
                                         ],
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    DownloadButton(DownloadStatus.notDownloaded,
-                                        () {
-                                      downloadMusicFromFirebase(index);
-                                    }, null),
+                                    Container(
+                                      height: 50,
+                                      width: 50,
+                                      color: Colors.orange,
+                                      child: ElevatedButton(
+                                        onPressed:(){
+                                          selectedPlaylist = index;
+                                        },
+                                        child: SvgPicture.asset(
+                                          'images/download.svg',
+                                            semanticsLabel: 'privacy policy',
+                                          width: 30,
+                                          height: 30,
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ),
                               ],
@@ -141,26 +139,28 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
             padding: const EdgeInsets.only(top: 10.0),
             child: PageTransitionButton(
                 '次に進む',
-                downloadStatus.contains(DownloadStatus.downloaded)
-                    ? () {
-                        Navigator.push<void>(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (BuildContext context) =>
-                                const ShakePage(),
-                          ),
-                        );
+                (){
+                    if(selectedPlaylist != -1) {
+                      int i;
+                      for (i = 0; i < musics.length; i++) {
+                        if (musics[i]['displayName'] == PreparedPlaylist[selectedPlaylist]['music1']) {
+                          RunningPlaylist.add(musics[i]);
+                        }
                       }
-                    //  のちにnullに変更
-                    : () {
-                        Navigator.push<void>(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (BuildContext context) =>
-                                const ShakePage(),
-                          ),
-                        );
-                      }),
+                      print(RunningPlaylist);
+                      downloadMusicFromFirebase(RunningPlaylist[0]['fileName']);
+                      Navigator.push<void>(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) =>
+                          const ShakePage(),
+                        ),
+                      );
+                    }else{
+                      null;
+                    }
+                  }
+                ),
           )
         ],
       ),
@@ -168,13 +168,14 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
   }
 }
 
-void downloadMusicFromFirebase(int playlistNumber) async {
-  final storageRef = FirebaseStorage.instance.ref('128_long_BPM124.mp3');
+void downloadMusicFromFirebase(String filenameOfPlaylist) async {
+  final storageRef = FirebaseStorage.instance.ref(filenameOfPlaylist);
 
   final appDocDir = await getApplicationDocumentsDirectory();
-  final filePath = "${appDocDir.path}/128_long_BPM124.mp3";
-  print(filePath);
-  musics[0] = filePath;
+  final filePath = "${appDocDir.path}/${filenameOfPlaylist}";
+  musicFilePath = appDocDir.path;
+  print(musicFilePath);
+  filenameOfPlaylist=filePath;
   final file = File(filePath);
   debugPrint('$file');
 
@@ -189,7 +190,6 @@ void downloadMusicFromFirebase(int playlistNumber) async {
         break;
       case TaskState.success:
         debugPrint('success');
-        downloadStatus[playlistNumber] = DownloadStatus.downloaded;
         break;
       case TaskState.canceled:
         debugPrint('canceled');
@@ -208,7 +208,9 @@ Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
       print("Successfully completed");
       for (var docSnapshot in querySnapshot.docs) {
         print('${docSnapshot.id} => ${docSnapshot.data()}');
+        musics.add(docSnapshot.data());
       }
+      print(musics);
     },
     onError: (e) => print("Error completing: $e"),
   );
@@ -218,8 +220,9 @@ Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
       print("Successfully completed");
       for (var docSnapshot in querySnapshot.docs) {
         print('${docSnapshot.id} => ${docSnapshot.data()}');
-        MusicPlaylist.add(docSnapshot.id);
+        PreparedPlaylist.add(docSnapshot.data());
       }
+      print(PreparedPlaylist);
     },
     onError: (e) => print("Error completing: $e"),
   );

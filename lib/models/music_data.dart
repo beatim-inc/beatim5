@@ -1,3 +1,5 @@
-List<String>MusicPlaylist = [];
+List<Map> PreparedPlaylist = [];
 
-Map musics = {};
+List<Map> musics = [];
+
+List<Map> RunningPlaylist = [];
