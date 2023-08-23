@@ -86,15 +86,13 @@ class _ShakePageState extends State<ShakePage> {
 
     Timer.periodic(Duration(milliseconds: dtMs), (Timer timer) {
       """
-      サンプリング間隔ごとに, ステップ検出, データ送信, 時系列データログを行う
+      サンプリング間隔ごとに, ステップ検出を行う
       """;
       getStep();
       if (playbackBpm != 0.0) {
         timer.cancel();
       }
       // sendSensorData();
-
-      logTimeSeriesDatas();
     });
   }
 
@@ -198,6 +196,9 @@ class _ShakePageState extends State<ShakePage> {
       // ステップタイミングフラグを更新
       isStepTime = false;
     }
+
+    // ステップ検出に使用したデータを送信
+    logTimeSeriesDatas();
   }
 
   double calcBpmFromIntervals(List<int> intervals) {
