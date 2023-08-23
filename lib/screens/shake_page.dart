@@ -86,16 +86,14 @@ class _ShakePageState extends State<ShakePage> {
 
     Timer.periodic(Duration(milliseconds: dtMs), (Timer timer) {
       """
-      サンプリング間隔ごとに, 変数の更新，ステップ検出, データ送信, 時系列データログを行う
+      サンプリング間隔ごとに, ステップ検出, データ送信, 時系列データログを行う
       """;
-      //ストップウォッチ動かしてからの時間
-      nowTime = DateTime.now().millisecondsSinceEpoch;
-
       getStep();
       if (playbackBpm != 0.0) {
         timer.cancel();
       }
       // sendSensorData();
+
       logTimeSeriesDatas();
     });
   }
@@ -143,6 +141,9 @@ class _ShakePageState extends State<ShakePage> {
     gyroFiltered[2] = gyroFiltered[1];
     gyroFiltered[1] = gyroFiltered[0];
     gyroFiltered[0] = gain * gyroFiltered[1] + (1 - gain) * gyro[0];
+
+    //ストップウォッチ動かしてからの時間
+    nowTime = DateTime.now().millisecondsSinceEpoch;
 
     // 前回のステップからの経過時間が十分時間が経っていたらカウンターをリセット
     if (nowTime - preStepTime > intervalMax) {
