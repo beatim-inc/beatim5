@@ -21,14 +21,16 @@ class _ShakePageState extends State<ShakePage> {
   double playbackBpm = 0.0;
 
   /* ステップセンシング関係の変数 - START */
-  double gyrox = 0, gyroy = 0, gyroz = 0;
+  double gyroX = 0, gyroY = 0, gyroZ = 0;
+  double acceleX = 0, acceleY = 0, acceleZ = 0;
   List<double> gyro = [0, 0, 0];
+  List<double> accele = [0, 0, 0];
   int dtMs = 10; // センシングのサンプリング間隔(ms)
   double cutoffFrequencyHz = 0.8; // カットオフ周波数(Hz)
   double tauSec = 1; // 時定数
   double gain = 0.5; // ローパスフィルターのゲイン. initState()で初期化する
   List<double> gyroFiltered = [0, 0, 0];
-  List<double> preGyroMormalized = [0, 0, 1]; // 正規化した角速度ベクトル. ステップ取得時に更新
+  List<double> preGyroNormalized = [0, 0, 1]; // 正規化した角速度ベクトル. ステップ取得時に更新
   double hurdolRadpersec = 2.5;
   final List<int> _intervals = List.filled(16, 0);
   int preStepTime = 0,
@@ -36,6 +38,7 @@ class _ShakePageState extends State<ShakePage> {
       intervalMax = 750,
       nowTime = 0,
       counter = 0;
+  bool isStepTime = false;
 
   /* ステップセンシング関係の変数 - END */
 
@@ -58,25 +61,42 @@ class _ShakePageState extends State<ShakePage> {
     gyroscopeEvents.listen(
       (GyroscopeEvent event) {
         """
-      ジャイロセンサからデータがきたら変数(gyrox, gyroy, gyroz)にストックする
-      """;
+        ジャイロセンサからデータがきたら変数(gyrox, gyroy, gyroz)を更新する
+        """;
         setState(() {
-          gyrox = event.x;
-          gyroy = event.y;
-          gyroz = event.z;
+          gyroX = event.x;
+          gyroY = event.y;
+          gyroZ = event.z;
         });
       },
     );
 
+    accelerometerEvents.listen(
+      (AccelerometerEvent event) {
+        """
+        加速度センサからデータがきたら変数(accelex, acceley, accelez)を更新する
+        """;
+        setState(() {
+          acceleX = event.x;
+          acceleY = event.y;
+          acceleZ = event.z;
+        });
+      }
+    );
+
     Timer.periodic(Duration(milliseconds: dtMs), (Timer timer) {
       """
-      サンプリング間隔ごとに, ステップ検出, データ送信, データ保存を行う
+      サンプリング間隔ごとに, 変数の更新，ステップ検出, データ送信, 時系列データログを行う
       """;
+      //ストップウォッチ動かしてからの時間
+      nowTime = DateTime.now().millisecondsSinceEpoch;
+
       getStep();
       if (playbackBpm != 0.0) {
         timer.cancel();
       }
       // sendSensorData();
+      logTimeSeriesDatas();
     });
   }
 
@@ -100,17 +120,17 @@ class _ShakePageState extends State<ShakePage> {
       return pow((pow(x, 2) + pow(y, 2) + pow(z, 2)), 0.5).toDouble();
     }
 
-    double gyroNorm = getNorm(gyrox, gyroy, gyroz);
+    double gyroNorm = getNorm(gyroX, gyroY, gyroZ);
 
     // 前回のステップからの角速度ベクトルの向きの変化量(0~2)を取得
     List<double> gyroNormalized = [
-      gyrox / gyroNorm,
-      gyroy / gyroNorm,
-      gyroz / gyroNorm
+      gyroX / gyroNorm,
+      gyroY / gyroNorm,
+      gyroZ / gyroNorm
     ];
-    double directionChangeX = gyroNormalized[0] - preGyroMormalized[0];
-    double directionChangeY = gyroNormalized[1] - preGyroMormalized[1];
-    double directionChangeZ = gyroNormalized[2] - preGyroMormalized[2];
+    double directionChangeX = gyroNormalized[0] - preGyroNormalized[0];
+    double directionChangeY = gyroNormalized[1] - preGyroNormalized[1];
+    double directionChangeZ = gyroNormalized[2] - preGyroNormalized[2];
     double directionChange =
         getNorm(directionChangeX, directionChangeY, directionChangeZ);
 
@@ -123,9 +143,6 @@ class _ShakePageState extends State<ShakePage> {
     gyroFiltered[2] = gyroFiltered[1];
     gyroFiltered[1] = gyroFiltered[0];
     gyroFiltered[0] = gain * gyroFiltered[1] + (1 - gain) * gyro[0];
-
-    //ストップウォッチ動かしてからの時間
-    nowTime = DateTime.now().millisecondsSinceEpoch;
 
     // 前回のステップからの経過時間が十分時間が経っていたらカウンターをリセット
     if (nowTime - preStepTime > intervalMax) {
@@ -144,14 +161,22 @@ class _ShakePageState extends State<ShakePage> {
         gyroFiltered[0] < gyroFiltered[1] &&
         directionChange > 1.41421356 &&
         nowTime - preStepTime > intervalMin) {
+
+      // スマホにクリック感を出す
       HapticFeedback.heavyImpact();
+
       // 正規化した角速度ベクトルを更新
       for (int i = 0; i < 3; i++) {
-        preGyroMormalized[i] = gyroNormalized[i];
+        preGyroNormalized[i] = gyroNormalized[i];
       }
       // ステップ間隔を記録
       _intervals[counter] = nowTime - preStepTime;
       preStepTime = nowTime;
+
+      // ステップタイミングフラグを更新
+      isStepTime = true;
+
+      // ステップカウンターを更新
       counter++;
 
       // カウンターが溜まったらBPMを修正する
@@ -167,6 +192,10 @@ class _ShakePageState extends State<ShakePage> {
 
         counter = 0;
       }
+    }
+    else {
+      // ステップタイミングフラグを更新
+      isStepTime = false;
     }
   }
 
@@ -184,6 +213,23 @@ class _ShakePageState extends State<ShakePage> {
         (intervalPairs.length - 2);
     double runningBPM = 60.0 / (aveInterval / 1000);
     return runningBPM;
+  }
+
+  void logTimeSeriesDatas() {
+    /// 以下の情報をログデータとして残す(key: value) //TODO: 高井が実装
+    /// time: nowTime
+    /// gyroX: gyroX
+    /// gyroY: gyroY
+    /// gyroZ: gyroZ
+    /// gyroNorm: gyro[1]
+    /// gyroFiltered: gyroFiltered[1]
+    /// acceleX: acceleX
+    /// acceleY: acceleY
+    /// acceleZ: acceleZ
+    /// isStepTime: isStepTime
+    /// playbackBpm: playbackBpm
+    
+    
   }
 
   // void reconnectWebsocket() {
