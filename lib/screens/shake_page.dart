@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:beatim5/models/log_manager.dart';
 import 'package:beatim5/screens/run_page.dart';
 import 'package:beatim5/templates/base_layout.dart';
 import 'package:beatim5/widgets/counter_display.dart';
@@ -47,6 +48,9 @@ class _ShakePageState extends State<ShakePage> {
 
   /* ボタン関連の変数 - END */
 
+  //ログの生成
+  logManager sensorLog = logManager("仮ユーザID", DateTime.now().toString());
+
   Timer? _timer;
 
   /* ステップセンシング関係の関数  - START */
@@ -83,7 +87,6 @@ class _ShakePageState extends State<ShakePage> {
         });
       }
     );
-
     Timer.periodic(Duration(milliseconds: dtMs), (Timer timer) {
       """
       サンプリング間隔ごとに, ステップ検出を行う
@@ -91,6 +94,7 @@ class _ShakePageState extends State<ShakePage> {
       getStep();
       if (playbackBpm != 0.0) {
         timer.cancel();
+        sensorLog.printLogForDebug();
       }
       // sendSensorData();
     });
@@ -218,20 +222,19 @@ class _ShakePageState extends State<ShakePage> {
   }
 
   void logTimeSeriesDatas() {
-    /// 以下の情報をログデータとして残す(key: value) //TODO: 高井が実装
-    /// time: nowTime
-    /// gyroX: gyroX
-    /// gyroY: gyroY
-    /// gyroZ: gyroZ
-    /// gyroNorm: gyro[1]
-    /// gyroFiltered: gyroFiltered[1]
-    /// acceleX: acceleX
-    /// acceleY: acceleY
-    /// acceleZ: acceleZ
-    /// isStepTime: isStepTime
-    /// playbackBpm: playbackBpm
-    
-    
+    sensorLog.logTimeSeriesDatas(
+        nowTime,
+        gyroX,
+        gyroY,
+        gyroZ,
+        gyro,
+        gyroFiltered,
+        acceleX,
+        acceleY,
+        acceleZ,
+        isStepTime,
+        playbackBpm
+    );
   }
 
   // void reconnectWebsocket() {
