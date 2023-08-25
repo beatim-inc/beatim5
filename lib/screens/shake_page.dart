@@ -94,7 +94,7 @@ class _ShakePageState extends State<ShakePage> {
       getStep();
       if (playbackBpm != 0.0) {
         timer.cancel();
-        sensorLog.printLogForDebug();
+        sensorLog.writeLogToJson();
       }
       // sendSensorData();
     });

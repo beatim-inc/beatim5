@@ -1,3 +1,8 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+
 class logManager {
 
   logManager(this.userID,this.sessionID);
@@ -6,6 +11,7 @@ class logManager {
   final String sessionID;
 
   List<Map>logDatas = [];
+  late Map AllLogDatas = {"userID":userID,"sessionID":sessionID,"logDatas":logDatas};
 
   void logTimeSeriesDatas(nowTime,gyroX,gyroY,gyroZ,gyro,gyroFiltered,acceleX,acceleY,acceleZ,isStepTime,playbackBpm){
     logDatas.add(
@@ -24,10 +30,46 @@ class logManager {
       }
     );
   }
-  void printLogForDebug(){
-    print(userID);
-    print(sessionID);
-    print(logDatas);
-  }
 
+  void writeLogToJson()async{
+    final appDocDir = await getApplicationDocumentsDirectory();
+    final logfile =await File("${appDocDir.path}/sensorlog.json").create();
+    final jsonText = jsonEncode(AllLogDatas);
+    await logfile.writeAsString(jsonText);
+
+    // Create the file metadata
+    final metadata = SettableMetadata(contentType: "log/json");
+
+// Create a reference to the Firebase Storage bucket
+    final storageRef = FirebaseStorage.instance.ref();
+
+// Upload file and metadata to the path 'images/mountains.jpg'
+    final uploadTask = storageRef
+        .child("sensorlog.json")
+        .putFile(logfile, metadata);
+
+// Listen for state changes, errors, and completion of the upload.
+    uploadTask.snapshotEvents.listen((TaskSnapshot taskSnapshot) {
+      switch (taskSnapshot.state) {
+        case TaskState.running:
+          final progress =
+              100.0 * (taskSnapshot.bytesTransferred / taskSnapshot.totalBytes);
+          print("Upload is $progress% complete.");
+          break;
+        case TaskState.paused:
+          print("Upload is paused.");
+          break;
+        case TaskState.canceled:
+          print("Upload was canceled");
+          break;
+        case TaskState.error:
+        // Handle unsuccessful uploads
+          break;
+        case TaskState.success:
+        // Handle successful uploads on complete
+        // ...
+          break;
+      }
+    });
+  }
 }
