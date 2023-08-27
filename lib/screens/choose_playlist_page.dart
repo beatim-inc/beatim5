@@ -1,3 +1,4 @@
+import 'package:beatim5/models/MusicPlaylistMetadata.dart';
 import 'package:beatim5/models/music_data.dart';
 import 'package:beatim5/providers/musicfile_path.dart';
 import 'package:beatim5/screens/shake_page.dart';
@@ -7,9 +8,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
-import 'package:beatim5/models/download_status.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:beatim5/models/download_status.dart';
 
 int selectedPlaylist = -1;
 
@@ -81,7 +80,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                     } else {
                       debugPrint('completed');
                       return ListView.builder(
-                          itemCount: PreparedPlaylist.length,
+                          itemCount: MusicPlaylistMetadataCollection.length,
                           itemBuilder: (BuildContext context, int index) {
                             return Column(
                               children: [
@@ -102,12 +101,12 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            PreparedPlaylist[index]['Title'],
+                                            MusicPlaylistMetadataCollection[index].title,
                                             style: const TextStyle(
                                               fontSize: 24,
                                             ),
                                           ),
-                                          Text(PreparedPlaylist[index]['Subtitle']),
+                                          Text(MusicPlaylistMetadataCollection[index].subTitle),
                                         ],
                                       ),
                                     ),
@@ -143,7 +142,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                     if(selectedPlaylist != -1) {
                       int i;
                       for (i = 0; i < musics.length; i++) {
-                        if (musics[i]['displayName'] == PreparedPlaylist[selectedPlaylist]['music1']) {
+                        if (musics[i]['displayName'] == MusicPlaylistMetadataCollection[selectedPlaylist].music1) {
                           RunningPlaylist.add(musics[i]);
                         }
                       }
@@ -183,7 +182,7 @@ void downloadMusicFromFirebase(String filenameOfPlaylist) async {
   downloadTask.snapshotEvents.listen((taskSnapshot) {
     switch (taskSnapshot.state) {
       case TaskState.running:
-        debugPrint('running');
+        debugPrint('downloading');
         break;
       case TaskState.paused:
         debugPrint('paused');
@@ -220,9 +219,10 @@ Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
       print("Successfully completed");
       for (var docSnapshot in querySnapshot.docs) {
         print('${docSnapshot.id} => ${docSnapshot.data()}');
-        PreparedPlaylist.add(docSnapshot.data());
+        Map data = docSnapshot.data();
+        MusicPlaylistMetadataCollection.add(MusicPlaylistMetadata(data['Title'], data['Subtitle'], data['music1']));
       }
-      print(PreparedPlaylist);
+      print(MusicPlaylistMetadataCollection);
     },
     onError: (e) => print("Error completing: $e"),
   );

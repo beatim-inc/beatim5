@@ -1,9 +1,6 @@
 import 'package:beatim5/providers/musicfile_path.dart';
-import 'package:beatim5/screens/choose_playlist_page.dart';
 import 'package:beatim5/screens/finish_run_page.dart';
 import 'package:beatim5/screens/shake_page.dart';
-import 'package:beatim5/templates/base_layout.dart';
-import 'package:beatim5/widgets/music_controll_button.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
@@ -40,7 +37,7 @@ class _RunPageState extends State<RunPage> {
     super.initState();
     generateMusicPlaylist();
     player.play();
-    player.setSpeed(playbackBpm / 124);
+    player.setSpeed(playbackBpm / RunningPlaylist[0]['bpm']);
   }
 
   @override
