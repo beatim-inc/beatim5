@@ -33,7 +33,7 @@ class logManager {
 
   void writeLogToJson()async{
     final appDocDir = await getApplicationDocumentsDirectory();
-    final logfile =await File("${appDocDir.path}/sensorlog.json").create();
+    final logfile =await File("${appDocDir.path}/sensorlog${sessionID}.json").create();
     final jsonText = jsonEncode(AllLogDatas);
     await logfile.writeAsString(jsonText);
 
@@ -45,7 +45,7 @@ class logManager {
 
 // Upload file and metadata to the path 'images/mountains.jpg'
     final uploadTask = storageRef
-        .child("sensorlog.json")
+        .child("sensorlog${sessionID}.json")
         .putFile(logfile, metadata);
 
 // Listen for state changes, errors, and completion of the upload.
