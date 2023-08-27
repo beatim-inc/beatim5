@@ -132,7 +132,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
           Padding(
             padding: const EdgeInsets.only(top: 10.0),
             child: PageTransitionButton(
-                '次に進む',
+                'ダウンロード',
                 (){
                     if(selectedPlaylist != -1) {
                       int i;
