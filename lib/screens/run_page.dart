@@ -1,3 +1,4 @@
+import 'package:beatim5/providers/musicfile_path.dart';
 import 'package:beatim5/screens/choose_playlist_page.dart';
 import 'package:beatim5/screens/finish_run_page.dart';
 import 'package:beatim5/screens/shake_page.dart';
@@ -28,7 +29,7 @@ class _RunPageState extends State<RunPage> {
     final playList = ConcatenatingAudioSource(
       useLazyPreparation: true,
       children: List.generate(
-          musics.length, (index) => AudioSource.file(musics[index])),
+          1, (index) => AudioSource.file('${musicFilePath}/${RunningPlaylist[0]['fileName']}')),
     );
     player.setAudioSource(playList,
         initialIndex: 0, initialPosition: Duration.zero);
