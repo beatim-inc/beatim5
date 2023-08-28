@@ -21,7 +21,7 @@ class RunPage extends StatefulWidget {
 class _RunPageState extends State<RunPage> {
   final double playbackBpm;
   AudioPlayer player = AudioPlayer();
-  speedMeter speedmeter = speedMeter();
+  speedMeter speedmeter = speedMeter("仮ユーザID",DateTime.now().toString());
 
   _RunPageState({required this.playbackBpm});
 
@@ -136,6 +136,7 @@ class _RunPageState extends State<RunPage> {
                 padding: const EdgeInsets.only(top: 10.0),
                 child: PageTransitionButton('走りを終了', () {
                   player.stop();
+                  speedmeter.sendSpeedLog();
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
