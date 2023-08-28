@@ -87,18 +87,22 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    SvgPicture.asset(
-                                      'images/playlist.svg',
-                                      semanticsLabel: 'Music Playlist',
-                                      width: 80,
-                                      height: 80,
-                                    ),
-                                    const SizedBox(width: 10),
+                                    Radio(value: index,
+                                        groupValue: selectedPlaylist,
+                                        onChanged: (value) {
+                                          setState(() {
+                                            if (value == null) {
+                                              selectedPlaylist = -1;
+                                            } else {
+                                              selectedPlaylist = value;
+                                            }
+                                          });
+                                        }),
                                     SizedBox(
                                       width: 200,
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           Text(
                                             MusicPlaylistMetadataCollection[index].title,
@@ -111,22 +115,13 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                                       ),
                                     ),
                                     const SizedBox(width: 10),
-                                    Container(
-                                      height: 50,
-                                      width: 50,
-                                      color: Colors.orange,
-                                      child: ElevatedButton(
-                                        onPressed:(){
-                                          selectedPlaylist = index;
-                                        },
-                                        child: SvgPicture.asset(
-                                          'images/download.svg',
-                                            semanticsLabel: 'privacy policy',
-                                          width: 30,
-                                          height: 30,
-                                        ),
-                                      ),
+                                    SvgPicture.asset(
+                                      'images/playlist.svg',
+                                      semanticsLabel: 'Music Playlist',
+                                      width: 80,
+                                      height: 80,
                                     ),
+                                    const SizedBox(width: 10),
                                   ],
                                 ),
                               ],
@@ -137,7 +132,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
           Padding(
             padding: const EdgeInsets.only(top: 10.0),
             child: PageTransitionButton(
-                '次に進む',
+                'ダウンロード',
                 (){
                     if(selectedPlaylist != -1) {
                       int i;
@@ -201,30 +196,33 @@ void downloadMusicFromFirebase(String filenameOfPlaylist) async {
 }
 
 Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
-  var db1 = FirebaseFirestore.instance;
-  db1.collection("MusicInfo").get().then(
-    (querySnapshot) {
-      print("Successfully completed");
-      for (var docSnapshot in querySnapshot.docs) {
-        print('${docSnapshot.id} => ${docSnapshot.data()}');
-        musics.add(docSnapshot.data());
-      }
-      print(musics);
-    },
-    onError: (e) => print("Error completing: $e"),
-  );
-  var db2 = FirebaseFirestore.instance;
-  await db2.collection("MusicPlaylists").get().then(
-    (querySnapshot) {
-      print("Successfully completed");
-      for (var docSnapshot in querySnapshot.docs) {
-        print('${docSnapshot.id} => ${docSnapshot.data()}');
-        Map data = docSnapshot.data();
-        MusicPlaylistMetadataCollection.add(MusicPlaylistMetadata(data['Title'], data['Subtitle'], data['music1']));
-      }
-      print(MusicPlaylistMetadataCollection);
-    },
-    onError: (e) => print("Error completing: $e"),
-  );
+  if(MusicPlaylistMetadataCollection.length ==0) {
+    var db1 = FirebaseFirestore.instance;
+    db1.collection("MusicInfo").get().then(
+          (querySnapshot) {
+        print("Successfully completed");
+        for (var docSnapshot in querySnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          musics.add(docSnapshot.data());
+        }
+        print(musics);
+      },
+      onError: (e) => print("Error completing: $e"),
+    );
+    var db2 = FirebaseFirestore.instance;
+    await db2.collection("MusicPlaylists").get().then(
+          (querySnapshot) {
+        print("Successfully completed");
+        for (var docSnapshot in querySnapshot.docs) {
+          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          Map data = docSnapshot.data();
+          MusicPlaylistMetadataCollection.add(MusicPlaylistMetadata(
+              data['Title'], data['Subtitle'], data['music1']));
+        }
+        print(MusicPlaylistMetadataCollection);
+      },
+      onError: (e) => print("Error completing: $e"),
+    );
+  }
   return "loading playlists";
 }
