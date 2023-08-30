@@ -3,6 +3,7 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:convert';
+import 'dart:math';
 
 class speedMeter {
 
@@ -15,6 +16,10 @@ class speedMeter {
   double runningDistance = 0; // m
   double currentSpeed = 0; //  m/s
   List<Map> speedLog = [];
+  double lowpassFilteredSpeed=0;
+  double lowpassFilteredSpeedPre=0;
+  double gain = 0.61413; //サンプリング周波数1,カットオフ周波数0.1とした
+
 
   void getSpeed()async{
     if(speedLog.length < 1800){
@@ -26,7 +31,9 @@ class speedMeter {
           prePosition.latitude, prePosition.longitude, currentPosition.latitude, currentPosition.longitude
       );
       currentSpeed = runningDistance;
-      speedLog.add({"time":DateTime.now().toString(),"speed":currentSpeed});
+      lowpassFilteredSpeedPre = lowpassFilteredSpeed;
+      lowpassFilteredSpeed = gain*lowpassFilteredSpeedPre + (1-gain)*currentSpeed;
+      speedLog.add({"time":DateTime.now().toString(),"speed":currentSpeed,"lowpassFilteredSpeed":lowpassFilteredSpeed});
       print("${currentPosition.latitude},${currentPosition.longitude}");
       print(currentSpeed);
     }else{
