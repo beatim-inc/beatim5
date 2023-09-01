@@ -1,3 +1,4 @@
+import 'package:beatim5/models/speed_meter.dart';
 import 'package:beatim5/providers/musicfile_path.dart';
 import 'package:beatim5/screens/finish_run_page.dart';
 import 'package:beatim5/screens/shake_page.dart';
@@ -6,6 +7,8 @@ import 'package:beatim5/models/MusicMetadata.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:just_audio/just_audio.dart';
+import 'dart:async';
+
 
 class RunPage extends StatefulWidget {
   final double playbackBpm;
@@ -19,6 +22,7 @@ class RunPage extends StatefulWidget {
 class _RunPageState extends State<RunPage> {
   final double playbackBpm;
   AudioPlayer player = AudioPlayer();
+  speedMeter speedmeter = speedMeter("仮ユーザID",DateTime.now().toString());
 
   _RunPageState({required this.playbackBpm});
 
@@ -38,6 +42,11 @@ class _RunPageState extends State<RunPage> {
     generateMusicPlaylist();
     player.play();
     player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
+    Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        speedmeter.getSpeed();
+      });
+    });
   }
 
   @override
@@ -105,6 +114,13 @@ class _RunPageState extends State<RunPage> {
                 '${widget.playbackBpm.round()}',
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
+
+              /*GPSテスト用の速度表示部分　ここから */
+              
+              Text('${speedmeter.currentSpeed.toStringAsFixed(2)}m/s'),
+              
+              /*GPSテスト用の速度表示部分　ここまで */
+              
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
                 child: PageTransitionButton('再生速度を変更', () {
@@ -121,6 +137,7 @@ class _RunPageState extends State<RunPage> {
                 padding: const EdgeInsets.only(top: 10.0),
                 child: PageTransitionButton('走りを終了', () {
                   player.stop();
+                  speedmeter.sendSpeedLog();
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(

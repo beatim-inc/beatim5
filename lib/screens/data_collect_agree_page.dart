@@ -3,6 +3,7 @@ import 'package:beatim5/templates/base_layout.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geolocator/geolocator.dart';
 
 class DataCollectAgreePage extends BaseLayout {
   @override
@@ -27,7 +28,8 @@ class DataCollectAgreePage extends BaseLayout {
 
   @override
   Widget buttomContent(BuildContext context) {
-    return PageTransitionButton('同意する', () {
+    return PageTransitionButton('同意する', () async{
+      await Geolocator.requestPermission();
       Navigator.push<void>(
         context,
         MaterialPageRoute<void>(
