@@ -1,10 +1,8 @@
-import 'package:beatim5/models/music_data.dart';
 import 'package:beatim5/screens/choose_playlist_page.dart';
 import 'package:beatim5/templates/base_layout.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:beatim5/models/music_data.dart';
 import 'package:flutter_svg/svg.dart';
 
 class EarphoneRecommendPage extends BaseLayout {

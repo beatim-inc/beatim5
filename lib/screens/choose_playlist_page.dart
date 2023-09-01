@@ -1,5 +1,5 @@
+import 'package:beatim5/models/MusicMetadata.dart';
 import 'package:beatim5/models/MusicPlaylistMetadata.dart';
-import 'package:beatim5/models/music_data.dart';
 import 'package:beatim5/providers/musicfile_path.dart';
 import 'package:beatim5/screens/shake_page.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
@@ -136,13 +136,13 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                 (){
                     if(selectedPlaylist != -1) {
                       int i;
-                      for (i = 0; i < musics.length; i++) {
-                        if (musics[i]['displayName'] == MusicPlaylistMetadataCollection[selectedPlaylist].music1) {
-                          RunningPlaylist.add(musics[i]);
+                      for (i = 0; i < MusicMetadataCollection.length; i++) {
+                        if (MusicMetadataCollection[i].displayName == MusicPlaylistMetadataCollection[selectedPlaylist].music1) {
+                          MusicPlaylist.add(MusicMetadataCollection[i]);
                         }
                       }
-                      print(RunningPlaylist);
-                      downloadMusicFromFirebase(RunningPlaylist[0]['fileName']);
+                      print(MusicPlaylist);
+                      downloadMusicFromFirebase(MusicPlaylist[0].fileName);
                       Navigator.push<void>(
                         context,
                         MaterialPageRoute<void>(
@@ -203,9 +203,10 @@ Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
         print("Successfully completed");
         for (var docSnapshot in querySnapshot.docs) {
           print('${docSnapshot.id} => ${docSnapshot.data()}');
-          musics.add(docSnapshot.data());
+          Map musicData = docSnapshot.data();
+          MusicMetadataCollection.add(MusicMetadata(musicData['bpm'], musicData['displayName'], musicData['fileName']));
         }
-        print(musics);
+        print(MusicMetadataCollection);
       },
       onError: (e) => print("Error completing: $e"),
     );

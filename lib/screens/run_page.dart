@@ -3,11 +3,12 @@ import 'package:beatim5/providers/musicfile_path.dart';
 import 'package:beatim5/screens/finish_run_page.dart';
 import 'package:beatim5/screens/shake_page.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
+import 'package:beatim5/models/MusicMetadata.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:beatim5/models/music_data.dart';
 import 'dart:async';
+
 
 class RunPage extends StatefulWidget {
   final double playbackBpm;
@@ -29,7 +30,7 @@ class _RunPageState extends State<RunPage> {
     final playList = ConcatenatingAudioSource(
       useLazyPreparation: true,
       children: List.generate(
-          1, (index) => AudioSource.file('${musicFilePath}/${RunningPlaylist[0]['fileName']}')),
+          1, (index) => AudioSource.file('${musicFilePath}/${MusicPlaylist[0].fileName}')),
     );
     player.setAudioSource(playList,
         initialIndex: 0, initialPosition: Duration.zero);
@@ -40,7 +41,7 @@ class _RunPageState extends State<RunPage> {
     super.initState();
     generateMusicPlaylist();
     player.play();
-    player.setSpeed(playbackBpm / RunningPlaylist[0]['bpm']);
+    player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
     Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         speedmeter.getSpeed();
