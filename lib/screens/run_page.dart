@@ -1,4 +1,4 @@
-import 'package:beatim5/models/speed_meter.dart';
+import 'package:beatim5/models/speed_meter_log_manager.dart';
 import 'package:beatim5/providers/musicfile_path.dart';
 import 'package:beatim5/screens/finish_run_page.dart';
 import 'package:beatim5/screens/shake_page.dart';
@@ -9,6 +9,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:just_audio/just_audio.dart';
 import 'dart:async';
 
+import '../functions/get_or_generate_user_id.dart';
 
 class RunPage extends StatefulWidget {
   final double playbackBpm;
@@ -22,7 +23,8 @@ class RunPage extends StatefulWidget {
 class _RunPageState extends State<RunPage> {
   final double playbackBpm;
   AudioPlayer player = AudioPlayer();
-  speedMeter speedmeter = speedMeter("仮ユーザID",DateTime.now().toString());
+
+  speedMeterLogManager? speedMeterLog;
 
   _RunPageState({required this.playbackBpm});
 
@@ -30,7 +32,9 @@ class _RunPageState extends State<RunPage> {
     final playList = ConcatenatingAudioSource(
       useLazyPreparation: true,
       children: List.generate(
-          1, (index) => AudioSource.file('${musicFilePath}/${MusicPlaylist[0].fileName}')),
+          1,
+          (index) => AudioSource.file(
+              '${musicFilePath}/${MusicPlaylist[0].fileName}')),
     );
     player.setAudioSource(playList,
         initialIndex: 0, initialPosition: Duration.zero);
@@ -39,12 +43,18 @@ class _RunPageState extends State<RunPage> {
   @override
   void initState() {
     super.initState();
+
+    getOrGenerateUserId().then((userId) {
+      //ログの生成
+      speedMeterLog = speedMeterLogManager(userId, DateTime.now().toString());
+    });
+
     generateMusicPlaylist();
     player.play();
     player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
     Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
-        speedmeter.getSpeed();
+        speedMeterLog?.getSpeed();
       });
     });
   }
@@ -86,7 +96,7 @@ class _RunPageState extends State<RunPage> {
                     height: 83,
                     child: Center(
                       child: Text(
-                        "音楽の再生速度を再変更したい場合、走りを終了したい場合は以下のボタンを押してください",
+                        "音楽の再生速度を再度変更したい、ランニングを終了する際は以下のボタンを押してください",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
@@ -116,11 +126,15 @@ class _RunPageState extends State<RunPage> {
               ),
 
               /*GPSテスト用の速度表示部分　ここから */
-              
-              Text('${speedmeter.currentSpeed.toStringAsFixed(2)}m/s'),
-              
+
+              Text(
+                speedMeterLog != null
+                    ? '${speedMeterLog!.currentSpeed.toStringAsFixed(2)}m/s'
+                    : 'Loading...',
+              ),
+
               /*GPSテスト用の速度表示部分　ここまで */
-              
+
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
                 child: PageTransitionButton('再生速度を変更', () {
@@ -135,9 +149,9 @@ class _RunPageState extends State<RunPage> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
-                child: PageTransitionButton('走りを終了', () {
+                child: PageTransitionButton('ランニング終了', () {
                   player.stop();
-                  speedmeter.sendSpeedLog();
+                  speedMeterLog?.sendSpeedLog();
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(

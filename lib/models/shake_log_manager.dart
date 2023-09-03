@@ -3,9 +3,9 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 
-class logManager {
+class shakeLogManager {
 
-  logManager(this.userID,this.sessionID);
+  shakeLogManager(this.userID,this.sessionID);
 
   final String userID;
   final String sessionID;
@@ -13,7 +13,7 @@ class logManager {
   List<Map>logDatas = [];
   late Map AllLogDatas = {"userID":userID,"sessionID":sessionID,"logDatas":logDatas};
 
-  void logTimeSeriesDatas(nowTime,gyroX,gyroY,gyroZ,gyro,gyroFiltered,acceleX,acceleY,acceleZ,isStepTime,playbackBpm){
+  void addTimeSeriesDatasToBuffer(nowTime,gyroX,gyroY,gyroZ,gyro,gyroFiltered,acceleX,acceleY,acceleZ,isStepTime,playbackBpm){
     logDatas.add(
       {
       "time": nowTime,
@@ -31,7 +31,7 @@ class logManager {
     );
   }
 
-  void writeLogToJson()async{
+  void writeLogToFirebaseAsJson()async{
     final appDocDir = await getApplicationDocumentsDirectory();
     final logfile =await File("${appDocDir.path}/sensorlog${sessionID}.json").create();
     final jsonText = jsonEncode(AllLogDatas);
@@ -45,7 +45,7 @@ class logManager {
 
 // Upload file and metadata to the path 'images/mountains.jpg'
     final uploadTask = storageRef
-        .child("sensorlog${sessionID}.json")
+        .child("Shakelog/${sessionID}.json")
         .putFile(logfile, metadata);
 
 // Listen for state changes, errors, and completion of the upload.

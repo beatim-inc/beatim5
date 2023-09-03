@@ -9,7 +9,7 @@ class DataCollectAgreePage extends BaseLayout {
   @override
   String get title => 'データ収集について';
 
-  String get explanation => '本アプリは走行データなどを取得します。プライバシーポリシーに同意していただく必要があります。';
+  String get explanation => '本アプリは走行データなどを取得します。位置情報の利用に同意していただく必要があります。';
 
   @override
   Widget mainContent(BuildContext context) {

@@ -5,9 +5,9 @@ import 'dart:io';
 import 'dart:convert';
 import 'dart:math';
 
-class speedMeter {
+class speedMeterLogManager {
 
-  speedMeter(this.userID,this.sessionID);
+  speedMeterLogManager(this.userID,this.sessionID);
 
   final String userID;
   final String sessionID;
@@ -56,7 +56,7 @@ class speedMeter {
 
     // Upload file and metadata to the path 'images/mountains.jpg'
     final uploadTask = storageRef
-        .child("speedlog${sessionID}.json")
+        .child("GpsLog/${sessionID}.json")
         .putFile(logfile, metadata);
 
     // Listen for state changes, errors, and completion of the upload.

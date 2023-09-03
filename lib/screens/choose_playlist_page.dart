@@ -40,7 +40,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
               height: 52,
               child: Center(
                 child: Text(
-                  'プレイリストの選択',
+                  '再生楽曲の選択',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -56,7 +56,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
               height: 83,
               child: Center(
                 child: Text(
-                  '走りに利用するプレイリストをダウンロードしてください',
+                  '走りに利用する音楽をダウンロードしてください',
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,

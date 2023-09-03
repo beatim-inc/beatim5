@@ -5,13 +5,13 @@ class MusicControllButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Container(
+    return const Center(
+      child: SizedBox(
         width: 310,
         height: 101,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: const [
+          children: [
             IconButton(
               onPressed: null,
               icon: Icon(Icons.fast_rewind),

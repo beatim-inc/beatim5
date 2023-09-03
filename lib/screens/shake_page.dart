@@ -1,15 +1,18 @@
 import 'dart:async';
 import 'dart:math';
 
-import 'package:beatim5/models/log_manager.dart';
+import 'package:beatim5/models/shake_log_manager.dart';
 import 'package:beatim5/screens/run_page.dart';
 import 'package:beatim5/templates/base_layout.dart';
 import 'package:beatim5/widgets/counter_display.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:sensors/sensors.dart';
+
+import '../functions/get_or_generate_user_id.dart';
 
 class ShakePage extends StatefulWidget {
   const ShakePage({super.key});
@@ -49,7 +52,8 @@ class _ShakePageState extends State<ShakePage> {
   /* ボタン関連の変数 - END */
 
   //ログの生成
-  logManager sensorLog = logManager("仮ユーザID", DateTime.now().toString());
+
+  late shakeLogManager shakeLog;
 
   Timer? _timer;
 
@@ -57,6 +61,11 @@ class _ShakePageState extends State<ShakePage> {
   @override
   void initState() {
     super.initState();
+
+    getOrGenerateUserId().then((userId) {
+      //ログの生成
+      shakeLog = shakeLogManager(userId, DateTime.now().toString());
+    });
 
     // 時定数とゲインの初期化
     tauSec = 1.0 / (2 * 3.1415926535 * cutoffFrequencyHz);
@@ -75,18 +84,16 @@ class _ShakePageState extends State<ShakePage> {
       },
     );
 
-    accelerometerEvents.listen(
-      (AccelerometerEvent event) {
-        """
+    accelerometerEvents.listen((AccelerometerEvent event) {
+      """
         加速度センサからデータがきたら変数(accelex, acceley, accelez)を更新する
         """;
-        setState(() {
-          acceleX = event.x;
-          acceleY = event.y;
-          acceleZ = event.z;
-        });
-      }
-    );
+      setState(() {
+        acceleX = event.x;
+        acceleY = event.y;
+        acceleZ = event.z;
+      });
+    });
     Timer.periodic(Duration(milliseconds: dtMs), (Timer timer) {
       """
       サンプリング間隔ごとに, ステップ検出を行う
@@ -94,7 +101,6 @@ class _ShakePageState extends State<ShakePage> {
       getStep();
       if (playbackBpm != 0.0) {
         timer.cancel();
-        sensorLog.writeLogToJson();
       }
       // sendSensorData();
     });
@@ -164,7 +170,6 @@ class _ShakePageState extends State<ShakePage> {
         gyroFiltered[0] < gyroFiltered[1] &&
         directionChange > 1.41421356 &&
         nowTime - preStepTime > intervalMin) {
-
       // スマホにクリック感を出す
       HapticFeedback.heavyImpact();
 
@@ -186,6 +191,8 @@ class _ShakePageState extends State<ShakePage> {
       if (counter == _intervals.length) {
         playbackBpm = calcBpmFromIntervals(_intervals);
 
+        shakeLog.writeLogToFirebaseAsJson();
+
         Navigator.push(
           context,
           MaterialPageRoute(
@@ -195,8 +202,7 @@ class _ShakePageState extends State<ShakePage> {
 
         counter = 0;
       }
-    }
-    else {
+    } else {
       // ステップタイミングフラグを更新
       isStepTime = false;
     }
@@ -222,19 +228,8 @@ class _ShakePageState extends State<ShakePage> {
   }
 
   void logTimeSeriesDatas() {
-    sensorLog.logTimeSeriesDatas(
-        nowTime,
-        gyroX,
-        gyroY,
-        gyroZ,
-        gyro,
-        gyroFiltered,
-        acceleX,
-        acceleY,
-        acceleZ,
-        isStepTime,
-        playbackBpm
-    );
+    shakeLog.addTimeSeriesDatasToBuffer(nowTime, gyroX, gyroY, gyroZ, gyro,
+        gyroFiltered, acceleX, acceleY, acceleZ, isStepTime, playbackBpm);
   }
 
   // void reconnectWebsocket() {
@@ -263,23 +258,28 @@ class _ShakePageState extends State<ShakePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(automaticallyImplyLeading: false, actions: [
-          IconButton(
-            icon: SvgPicture.asset(
-              'images/debug.svg',
-              semanticsLabel: 'Shake Smartphone',
-              width: 20,
-              height: 20,
-            ),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => RunPage(playbackBpm: 160)),
-              );
-            },
-          ),
-        ]),
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          actions: kDebugMode
+              ? [
+                  IconButton(
+                    icon: SvgPicture.asset(
+                      'images/debug.svg',
+                      semanticsLabel: 'Shake Smartphone',
+                      width: 20,
+                      height: 20,
+                    ),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => RunPage(playbackBpm: 160)),
+                      );
+                    },
+                  ),
+                ]
+              : [],
+        ),
         body: Center(
           child: Column(
             // mainAxisAlignment: MainAxisAlignment.center,
@@ -309,10 +309,10 @@ class _ShakePageState extends State<ShakePage> {
                   padding: EdgeInsets.only(top: 14),
                   child: SizedBox(
                     width: 280,
-                    height: 83,
+                    height: 120,
                     child: Center(
                       child: Text(
-                        "スマホを片手で持ち、走るペースに合わせて腕を振って走り始めましょう！音楽は自動で再生されます。",
+                        "スマホを片手に持ち、走るペースに合わせて腕を振って走り始めましょう！音楽は自動で再生されます。再生されたらスマホを手に持つ必要はありません。",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
