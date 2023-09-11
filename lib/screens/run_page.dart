@@ -12,7 +12,7 @@ import 'dart:async';
 import '../functions/get_or_generate_user_id.dart';
 
 class RunPage extends StatefulWidget {
-  final double playbackBpm;
+  double playbackBpm;
 
   RunPage({required this.playbackBpm});
 
@@ -21,12 +21,14 @@ class RunPage extends StatefulWidget {
 }
 
 class _RunPageState extends State<RunPage> {
-  final double playbackBpm;
+  double playbackBpm;
   AudioPlayer player = AudioPlayer();
 
   speedMeterLogManager? speedMeterLog;
 
   _RunPageState({required this.playbackBpm});
+
+  double goalSpeed = 1.7;
 
   void generateMusicPlaylist() {
     final playList = ConcatenatingAudioSource(
@@ -57,7 +59,23 @@ class _RunPageState extends State<RunPage> {
         speedMeterLog?.getSpeed();
       });
     });
+    Timer.periodic(Duration(seconds: 10),(timer){
+      setState((){
+          if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed) < goalSpeed -0.2){
+            playbackBpm ++;
+            player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
+          }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed) > goalSpeed +0.2){
+            playbackBpm --;
+            player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
+          }
+      });
+    });
   }
+
+  @override
+  void dispose(){
+    player.dispose();
+}
 
   @override
   Widget build(BuildContext context) {
@@ -120,9 +138,26 @@ class _RunPageState extends State<RunPage> {
                 '最適なBPM',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
-              Text(
-                '${widget.playbackBpm.round()}',
-                style: Theme.of(context).textTheme.headlineLarge,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton(onPressed: (){
+                    setState(() {
+                      playbackBpm --;
+                      player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
+                    });
+                  },child: Icon(Icons.remove)),
+                  Text(
+                    '${playbackBpm.round()}',
+                    style: Theme.of(context).textTheme.headlineLarge,
+                  ),
+                  ElevatedButton(onPressed: (){
+                    setState(() {
+                      playbackBpm ++;
+                      player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
+                    });
+                  },child: Icon(Icons.add)),
+                ],
               ),
 
               /*GPSテスト用の速度表示部分　ここから */
