@@ -34,12 +34,16 @@ class _RunPageState extends State<RunPage> {
     final playList = ConcatenatingAudioSource(
       useLazyPreparation: true,
       children: List.generate(
-          1,
+          MusicPlaylist.length,
           (index) => AudioSource.file(
-              '${musicFilePath}/${MusicPlaylist[0].fileName}')),
+              '${musicFilePath}/${MusicPlaylist[index].fileName}')),
     );
-    player.setAudioSource(playList,
-        initialIndex: 0, initialPosition: Duration.zero);
+    player.setAudioSource(playList, initialIndex: 0, initialPosition: Duration.zero);
+    player.setLoopMode(LoopMode.all);
+  }
+
+  void adjustSpeed(){
+    player.setSpeed(playbackBpm / MusicPlaylist[player.currentIndex ?? 0].bpm);
   }
 
   @override
@@ -53,7 +57,7 @@ class _RunPageState extends State<RunPage> {
 
     generateMusicPlaylist();
     player.play();
-    player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
+    adjustSpeed();
     Timer.periodic(Duration(seconds: 1), (timer) {
       setState(() {
         speedMeterLog?.getSpeed();
@@ -63,10 +67,10 @@ class _RunPageState extends State<RunPage> {
       setState((){
           if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed) < goalSpeed -0.2){
             playbackBpm ++;
-            player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
+            adjustSpeed();
           }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed) > goalSpeed +0.2){
             playbackBpm --;
-            player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
+            adjustSpeed();
           }
       });
     });
@@ -75,6 +79,7 @@ class _RunPageState extends State<RunPage> {
   @override
   void dispose(){
     player.dispose();
+    super.dispose();
 }
 
   @override
@@ -88,10 +93,10 @@ class _RunPageState extends State<RunPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(
-                height: 50,
+                height: 10,
               ),
               const Padding(
-                padding: EdgeInsets.only(top: 30),
+                padding: EdgeInsets.only(top: 10),
                 child: SizedBox(
                   width: 352,
                   // explanation SizedBox の Width が 83　なので 52, 135
@@ -108,7 +113,7 @@ class _RunPageState extends State<RunPage> {
                 ),
               ),
               const Padding(
-                  padding: EdgeInsets.only(top: 14),
+                  padding: EdgeInsets.only(top: 10),
                   child: SizedBox(
                     width: 280,
                     height: 83,
@@ -123,7 +128,7 @@ class _RunPageState extends State<RunPage> {
                     ),
                   )),
               const SizedBox(
-                height: 20,
+                height: 10,
               ),
               SvgPicture.asset(
                 'images/exercise.svg',
@@ -132,7 +137,14 @@ class _RunPageState extends State<RunPage> {
                 height: 200,
               ),
               const SizedBox(
-                height: 20,
+                height: 10,
+              ),
+              StreamBuilder(
+                  stream: player.currentIndexStream,
+                  builder: (BuildContext context, AsyncSnapshot<int?> snapshot){
+                    adjustSpeed();
+                    return Text('${(player.currentIndex?? 0)+1}曲目を再生中');
+                  }
               ),
               Text(
                 '最適なBPM',
@@ -141,22 +153,30 @@ class _RunPageState extends State<RunPage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+
+                  /*デバッグ用BPM微減ボタン　ここから*/
                   ElevatedButton(onPressed: (){
                     setState(() {
                       playbackBpm --;
-                      player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
+                      adjustSpeed();
                     });
                   },child: Icon(Icons.remove)),
+                  /*デバッグ用BPM微減ボタン　ここまで*/
+
                   Text(
                     '${playbackBpm.round()}',
                     style: Theme.of(context).textTheme.headlineLarge,
                   ),
+
+                  /*デバッグ用BPM微増ボタン　ここから*/
                   ElevatedButton(onPressed: (){
                     setState(() {
                       playbackBpm ++;
-                      player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
+                      adjustSpeed();
                     });
                   },child: Icon(Icons.add)),
+                  /*デバッグ用BPM微増ボタン　ここまで*/
+
                 ],
               ),
 
@@ -173,7 +193,7 @@ class _RunPageState extends State<RunPage> {
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
                 child: PageTransitionButton('再生速度を変更', () {
-                  player.stop();
+                  player.dispose();
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
@@ -185,7 +205,7 @@ class _RunPageState extends State<RunPage> {
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: PageTransitionButton('ランニング終了', () {
-                  player.stop();
+                  player.dispose();
                   speedMeterLog?.sendSpeedLog();
                   Navigator.push<void>(
                     context,
