@@ -29,6 +29,7 @@ class _RunPageState extends State<RunPage> {
   _RunPageState({required this.playbackBpm});
 
   double goalSpeed = 1.7;
+  double changeSpeedHurdle = 0.1;
 
   void generateMusicPlaylist() {
     final playList = ConcatenatingAudioSource(
@@ -65,10 +66,10 @@ class _RunPageState extends State<RunPage> {
     });
     Timer.periodic(Duration(seconds: 10),(timer){
       setState((){
-          if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed) < goalSpeed -0.2){
+          if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed) < goalSpeed - changeSpeedHurdle){
             playbackBpm ++;
             adjustSpeed();
-          }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed) > goalSpeed +0.2){
+          }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed) > goalSpeed + changeSpeedHurdle){
             playbackBpm --;
             adjustSpeed();
           }
