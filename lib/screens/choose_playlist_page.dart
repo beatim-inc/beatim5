@@ -133,16 +133,14 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
             padding: const EdgeInsets.only(top: 10.0),
             child: PageTransitionButton(
                 'ダウンロード',
-                (){
+                ()async{
                     if(selectedPlaylist != -1) {
-                      int i;
-                      for (i = 0; i < MusicMetadataCollection.length; i++) {
-                        if (MusicMetadataCollection[i].displayName == MusicPlaylistMetadataCollection[selectedPlaylist].music1) {
-                          MusicPlaylist.add(MusicMetadataCollection[i]);
-                        }
-                      }
+                      generateMusicPlaylist();
                       print(MusicPlaylist);
-                      downloadMusicFromFirebase(MusicPlaylist[0].fileName);
+                      int i;
+                      for(i=0; i < MusicPlaylist.length; i++){
+                        await downloadMusicFromFirebase(MusicPlaylist[i].fileName);
+                      }
                       Navigator.push<void>(
                         context,
                         MaterialPageRoute<void>(
@@ -162,16 +160,28 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
   }
 }
 
-void downloadMusicFromFirebase(String filenameOfPlaylist) async {
+void generateMusicPlaylist(){
+  int i;
+  for (i = 0; i < MusicPlaylistMetadataCollection[selectedPlaylist].music.length; i++) {
+    int j;
+    for (j = 0; j<MusicMetadataCollection.length; j++){
+      if (MusicPlaylistMetadataCollection[selectedPlaylist].music[i] == MusicMetadataCollection[j].displayName) {
+        MusicPlaylist.add(MusicMetadataCollection[j]);
+      }
+    }
+  }
+}
+
+Future<void> downloadMusicFromFirebase(String filenameOfPlaylist) async {
   final storageRef = FirebaseStorage.instance.ref(filenameOfPlaylist);
 
   final appDocDir = await getApplicationDocumentsDirectory();
   final filePath = "${appDocDir.path}/${filenameOfPlaylist}";
   musicFilePath = appDocDir.path;
-  print(musicFilePath);
+  //print(musicFilePath);
   filenameOfPlaylist=filePath;
   final file = File(filePath);
-  debugPrint('$file');
+  //debugPrint('$file');
 
   final downloadTask = storageRef.writeToFile(file);
   downloadTask.snapshotEvents.listen((taskSnapshot) {
@@ -193,6 +203,7 @@ void downloadMusicFromFirebase(String filenameOfPlaylist) async {
         break;
     }
   });
+  return;
 }
 
 Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
@@ -202,11 +213,11 @@ Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
           (querySnapshot) {
         print("Successfully completed");
         for (var docSnapshot in querySnapshot.docs) {
-          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          //print('${docSnapshot.id} => ${docSnapshot.data()}');
           Map musicData = docSnapshot.data();
           MusicMetadataCollection.add(MusicMetadata(musicData['bpm'], musicData['displayName'], musicData['fileName']));
         }
-        print(MusicMetadataCollection);
+        //print(MusicMetadataCollection);
       },
       onError: (e) => print("Error completing: $e"),
     );
@@ -215,12 +226,12 @@ Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
           (querySnapshot) {
         print("Successfully completed");
         for (var docSnapshot in querySnapshot.docs) {
-          print('${docSnapshot.id} => ${docSnapshot.data()}');
+          //print('${docSnapshot.id} => ${docSnapshot.data()}');
           Map data = docSnapshot.data();
           MusicPlaylistMetadataCollection.add(MusicPlaylistMetadata(
-              data['Title'], data['Subtitle'], data['music1']));
+              data['Title'], data['Subtitle'], List.generate(data.length-2, (index) => data['music${index+1}'])));
         }
-        print(MusicPlaylistMetadataCollection);
+        //print(MusicPlaylistMetadataCollection);
       },
       onError: (e) => print("Error completing: $e"),
     );

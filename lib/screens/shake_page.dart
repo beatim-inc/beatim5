@@ -36,7 +36,7 @@ class _ShakePageState extends State<ShakePage> {
   List<double> gyroFiltered = [0, 0, 0];
   List<double> preGyroNormalized = [0, 0, 1]; // 正規化した角速度ベクトル. ステップ取得時に更新
   double hurdolRadpersec = 2.5;
-  final List<int> _intervals = List.filled(16, 0);
+  final List<int> _intervals = List.filled(24, 0);
   int preStepTime = 0,
       intervalMin = 200,
       intervalMax = 750,
@@ -189,7 +189,7 @@ class _ShakePageState extends State<ShakePage> {
 
       // カウンターが溜まったらBPMを修正する
       if (counter == _intervals.length) {
-        playbackBpm = calcBpmFromIntervals(_intervals);
+        playbackBpm = calcBpmFromIntervals(_intervals.skip(8).toList());
 
         shakeLog.writeLogToFirebaseAsJson();
 
