@@ -34,10 +34,10 @@ class speedMeterLogManager {
       lowpassFilteredSpeedPre = lowpassFilteredSpeed;
       lowpassFilteredSpeed = gain*lowpassFilteredSpeedPre + (1-gain)*currentSpeed;
       speedLog.add({"time":DateTime.now().toString(),"speed":currentSpeed,"lowpassFilteredSpeed":lowpassFilteredSpeed});
-      print("${currentPosition.latitude},${currentPosition.longitude}");
-      print(currentSpeed);
+      // print("${currentPosition.latitude},${currentPosition.longitude}");
+      // print(currentSpeed);
     }else{
-      print("時間が経過したため速度計測を終了しました");
+      // print("時間が経過したため速度計測を終了しました");
     }
   }
 
