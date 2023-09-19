@@ -1,10 +1,10 @@
 class MusicPlaylistMetadata {
 
-  MusicPlaylistMetadata(this.title,this.subTitle,this.music1);
+  MusicPlaylistMetadata(this.title,this.subTitle,this.music);
 
   final String title;
   final String subTitle;
-  final String music1;
+  final List<String> music;
 
 }
 
