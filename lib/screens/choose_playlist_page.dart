@@ -20,6 +20,7 @@ class ChoosePlaylistPage extends StatefulWidget {
 }
 
 class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
+  Color pageTransitionButtonColor = Colors.grey;
 //  int selectedPlaylistIndex = -1;
 
   @override
@@ -93,8 +94,10 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                                           setState(() {
                                             if (value == null) {
                                               selectedPlaylist = -1;
+                                              pageTransitionButtonColor = Colors.grey;
                                             } else {
                                               selectedPlaylist = value;
+                                              pageTransitionButtonColor = Colors.orange;
                                             }
                                           });
                                         }),
@@ -131,28 +134,33 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                   })),
           Padding(
             padding: const EdgeInsets.only(top: 10.0),
-            child: PageTransitionButton(
-                'ダウンロード',
-                ()async{
-                    if(selectedPlaylist != -1) {
-                      generateMusicPlaylist();
-                      print(MusicPlaylist);
-                      int i;
-                      for(i=0; i < MusicPlaylist.length; i++){
-                        await downloadMusicFromFirebase(MusicPlaylist[i].fileName);
+            child: SizedBox(
+              height: 58,
+              width:224,
+              child: ElevatedButton(
+                  child: Text('ダウンロード',style: TextStyle(fontSize: 24),),
+                  style: ElevatedButton.styleFrom(backgroundColor: pageTransitionButtonColor),
+                  onPressed: ()async{
+                      if(selectedPlaylist != -1) {
+                        generateMusicPlaylist();
+                        print(MusicPlaylist);
+                        int i;
+                        for(i=0; i < MusicPlaylist.length; i++){
+                          await downloadMusicFromFirebase(MusicPlaylist[i].fileName);
+                        }
+                        Navigator.push<void>(
+                          context,
+                          MaterialPageRoute<void>(
+                            builder: (BuildContext context) =>
+                            const ShakePage(),
+                          ),
+                        );
+                      }else{
+                        null;
                       }
-                      Navigator.push<void>(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (BuildContext context) =>
-                          const ShakePage(),
-                        ),
-                      );
-                    }else{
-                      null;
                     }
-                  }
-                ),
+                  ),
+            ),
           )
         ],
       ),
