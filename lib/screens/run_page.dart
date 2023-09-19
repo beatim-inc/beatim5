@@ -33,6 +33,7 @@ class _RunPageState extends State<RunPage> {
   double? goalSpeed;
 
   double changeSpeedHurdle = 0.1;
+  double changeHighSpeedHurdle = 0.3;
   _initializeGoalSpeed() async {
     goalSpeed = await getGoalSpeed();
     setState(() {});
@@ -75,11 +76,17 @@ class _RunPageState extends State<RunPage> {
     });
     Timer.periodic(Duration(seconds: 10),(timer){
       setState((){
-          if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < goalSpeed! - changeSpeedHurdle){
-            playbackBpm ++;
+          if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < goalSpeed! - changeHighSpeedHurdle){
+            playbackBpm += 3;
+            adjustSpeed();
+          }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < goalSpeed! + changeSpeedHurdle){
+            playbackBpm += 1;
             adjustSpeed();
           }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! > goalSpeed! + changeSpeedHurdle){
-            playbackBpm --;
+            playbackBpm -= 1;
+            adjustSpeed();
+          }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! > goalSpeed! + changeHighSpeedHurdle){
+            playbackBpm -= 3;
             adjustSpeed();
           }
       });
