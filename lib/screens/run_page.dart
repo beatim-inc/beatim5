@@ -7,8 +7,10 @@ import 'package:beatim5/models/MusicMetadata.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:just_audio/just_audio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 
+import '../functions/get_goal_speed.dart';
 import '../functions/get_or_generate_user_id.dart';
 
 class RunPage extends StatefulWidget {
@@ -22,14 +24,19 @@ class RunPage extends StatefulWidget {
 
 class _RunPageState extends State<RunPage> {
   double playbackBpm;
-  AudioPlayer player = AudioPlayer();
-
-  speedMeterLogManager? speedMeterLog;
 
   _RunPageState({required this.playbackBpm});
 
-  double goalSpeed = 1.7;
+  AudioPlayer player = AudioPlayer();
+  speedMeterLogManager? speedMeterLog;
+
+  double? goalSpeed;
+
   double changeSpeedHurdle = 0.1;
+  _initializeGoalSpeed() async {
+    goalSpeed = await getGoalSpeed();
+    setState(() {});
+  }
 
   void generateMusicPlaylist() {
     final playList = ConcatenatingAudioSource(
@@ -51,6 +58,8 @@ class _RunPageState extends State<RunPage> {
   void initState() {
     super.initState();
 
+    _initializeGoalSpeed();
+
     getOrGenerateUserId().then((userId) {
       //ログの生成
       speedMeterLog = speedMeterLogManager(userId, DateTime.now().toString());
@@ -66,10 +75,10 @@ class _RunPageState extends State<RunPage> {
     });
     Timer.periodic(Duration(seconds: 10),(timer){
       setState((){
-          if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed) < goalSpeed - changeSpeedHurdle){
+          if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < goalSpeed! - changeSpeedHurdle){
             playbackBpm ++;
             adjustSpeed();
-          }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed) > goalSpeed + changeSpeedHurdle){
+          }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! > goalSpeed! + changeSpeedHurdle){
             playbackBpm --;
             adjustSpeed();
           }
@@ -78,10 +87,10 @@ class _RunPageState extends State<RunPage> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     player.dispose();
     super.dispose();
-}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,12 +140,12 @@ class _RunPageState extends State<RunPage> {
               const SizedBox(
                 height: 10,
               ),
-              SvgPicture.asset(
-                'images/exercise.svg',
-                semanticsLabel: 'Running',
-                width: 200,
-                height: 200,
-              ),
+              // SvgPicture.asset(
+              //   'images/exercise.svg',
+              //   semanticsLabel: 'Running',
+              //   width: 200,
+              //   height: 200,
+              // ),
               const SizedBox(
                 height: 10,
               ),
@@ -190,6 +199,11 @@ class _RunPageState extends State<RunPage> {
               ),
 
               /*GPSテスト用の速度表示部分　ここまで */
+
+              // movePace と moveSpeed のデバッグ用表示
+              Text(goalSpeed != null
+                  ? '理想スピード: ${goalSpeed?.toStringAsFixed(2)}m/s (${convertSpeedToMovePace(goalSpeed!)?.toStringAsFixed(2)}min/km)'
+                  : "Speed not set"),
 
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
