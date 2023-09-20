@@ -3,7 +3,7 @@ import 'package:beatim5/providers/musicfile_path.dart';
 import 'package:beatim5/screens/finish_run_page.dart';
 import 'package:beatim5/screens/shake_page.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
-import 'package:beatim5/models/MusicMetadata.dart';
+import 'package:beatim5/models/music_metadata.dart';
 import 'package:flutter/material.dart';
 import 'package:just_audio/just_audio.dart';
 import 'dart:async';
@@ -42,16 +42,16 @@ class _RunPageState extends State<RunPage> {
     final playList = ConcatenatingAudioSource(
       useLazyPreparation: true,
       children: List.generate(
-          MusicPlaylist.length,
+          musicPlaylist.length,
           (index) => AudioSource.file(
-              '${musicFilePath}/${MusicPlaylist[index].fileName}')),
+              '${musicFilePath}/${musicPlaylist[index].fileName}')),
     );
     player.setAudioSource(playList, initialIndex: 0, initialPosition: Duration.zero);
     player.setLoopMode(LoopMode.all);
   }
 
   void adjustSpeed(){
-    player.setSpeed(playbackBpm / MusicPlaylist[player.currentIndex ?? 0].bpm);
+    player.setSpeed(playbackBpm / musicPlaylist[player.currentIndex ?? 0].bpm);
   }
 
   @override
