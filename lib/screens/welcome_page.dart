@@ -1,8 +1,6 @@
 import 'package:beatim5/screens/data_collect_agree_page.dart';
-import 'package:beatim5/templates/base_layout.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 class WelcomePage extends StatelessWidget {
@@ -30,7 +28,6 @@ class WelcomePage extends StatelessWidget {
             padding: EdgeInsets.only(top: 30),
             child: SizedBox(
               width: 352,
-              // explanation SizedBox の Width が 83　なので 52, 135
               height: 52,
               child: Center(
                 child: Text(
