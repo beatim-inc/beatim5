@@ -57,7 +57,7 @@ class FinishRunPage extends StatelessWidget {
                 height: 83,
                 child: Center(
                   child: Text(
-                    'リズムは合っていましたか？アンケートへのご協力お願いします。',
+                    'テンポは合っていましたか？改善に向けたアンケートへのご協力もよろしくお願いします！',
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,
@@ -92,7 +92,7 @@ class FinishRunPage extends StatelessWidget {
                     height: 10,
                   ),
                   PageTransitionButton(
-                    '最初の画面へ',
+                    '終了する',
                         (){
                       Navigator.push<void>(
                           context,
