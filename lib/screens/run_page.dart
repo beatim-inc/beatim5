@@ -5,9 +5,7 @@ import 'package:beatim5/screens/shake_page.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:beatim5/models/MusicMetadata.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 
 import '../functions/get_goal_speed.dart';
@@ -38,7 +36,7 @@ class _RunPageState extends State<RunPage> {
     setState(() {});
   }
 
-  String speedMessage = 'ちょうど良いペースです';
+  String speedMessage = 'いい感じ';
 
   void generateMusicPlaylist() {
     final playList = ConcatenatingAudioSource(
@@ -81,17 +79,17 @@ class _RunPageState extends State<RunPage> {
             playbackBpm ++;
             adjustSpeed();
             setState(() {
-              speedMessage = 'ペースが落ちています';
+              speedMessage = 'もっと速く';
             });
           }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! > goalSpeed! + changeSpeedHurdle){
             playbackBpm --;
             adjustSpeed();
             setState(() {
-              speedMessage = 'ペースが速すぎます';
+              speedMessage = 'もっと遅く';
             });
           }else{
             setState(() {
-              speedMessage = 'ちょうど良いペースです';
+              speedMessage = 'いい感じ';
             });
           }
       });
@@ -115,74 +113,89 @@ class _RunPageState extends State<RunPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(
-                height: 10,
-              ),
-              const Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: SizedBox(
-                  width: 352,
-                  // explanation SizedBox の Width が 83　なので 52, 135
-                  height: 52,
-                  child: Center(
-                    child: Text(
-                      "走りはどうですか？",
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              const Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: SizedBox(
-                    width: 280,
-                    height: 83,
-                    child: Center(
-                      child: Text(
-                        "ランニングを終了する際は\n以下のボタンを押してください",
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  )),
-              const SizedBox(
-                height: 10,
-              ),
-              // SvgPicture.asset(
-              //   'images/exercise.svg',
-              //   semanticsLabel: 'Running',
-              //   width: 200,
-              //   height: 200,
-              // ),
-              const SizedBox(
-                height: 10,
-              ),
-              StreamBuilder(
-                  stream: player.currentIndexStream,
-                  builder: (BuildContext context, AsyncSnapshot<int?> snapshot){
-                    adjustSpeed();
-                    return SizedBox(height: 2,width: 2,);
-                  }
+                height: 150,
               ),
               Text(
-                '最適なBPM',
-                style: Theme.of(context).textTheme.headlineSmall,
+                '現在のBPM',
+                style: TextStyle(fontSize: 30),
               ),
               Text(
                 '${playbackBpm.round()}',
-                style: Theme.of(context).textTheme.headlineLarge,
+                style: TextStyle(fontSize: 60),
               ),
               Text(
                  '${speedMessage}',
                 style: TextStyle(fontSize: 30),
               ),
+              StreamBuilder(
+                  stream: player.currentIndexStream,
+                  builder: (BuildContext context, AsyncSnapshot<int?> snapshot){
+                    adjustSpeed();
+                    return SizedBox(height: 10,);
+                  }
+              ),
+              Center(
+                child: SizedBox(
+                  width: 250,
+                  height: 70,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: (){
+                          setState(() {
+                            player.seekToPrevious();
+                          });
+                        },
+                        icon: Icon(Icons.fast_rewind),
+                        iconSize: 60.0,
+                      ),
+                      StreamBuilder<PlayerState>(
+                        stream: player.playerStateStream,
+                        builder: (context, snapshot) {
+                          final playerState = snapshot.data;
+                          final playing = playerState?.playing;
+                          if (playing != true) {
+                            return IconButton(
+                              icon: const Icon(Icons.play_arrow),
+                              iconSize: 64.0,
+                              onPressed:(){
+                                setState(() {
+                                  player.play();
+                                });
+                              },
+                              color: Colors.black,
+                            );
+                          } else {
+                            return IconButton(
+                              icon: const Icon(Icons.pause),
+                              iconSize: 64.0,
+                              onPressed: (){
+                                setState(() {
+                                  player.pause();
+                                });
+                              },
+                              color: Colors.black,
+                            );
+                          }
+                        },
+                      ),
+                      IconButton(
+                        onPressed: (){
+                          setState(() {
+                            player.seekToNext();
+                          });
+                        },
+                        icon: Icon(Icons.fast_forward),
+                        iconSize: 60.0,
+                      )
+                    ],
+                  ),
+                ),
+              ),
               Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: PageTransitionButton('再生速度を変更', () {
+                padding: const EdgeInsets.only(top: 70.0),
+                child: PageTransitionButton('BPMを再設定', () {
                   player.dispose();
                   Navigator.push<void>(
                     context,
