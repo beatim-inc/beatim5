@@ -21,6 +21,7 @@ class ChoosePlaylistPage extends StatefulWidget {
 
 class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
   Color pageTransitionButtonColor = Colors.grey;
+
 //  int selectedPlaylistIndex = -1;
 
   @override
@@ -88,16 +89,19 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
-                                    Radio(value: index,
+                                    Radio(
+                                        value: index,
                                         groupValue: selectedPlaylist,
                                         onChanged: (value) {
                                           setState(() {
                                             if (value == null) {
                                               selectedPlaylist = -1;
-                                              pageTransitionButtonColor = Colors.grey;
+                                              pageTransitionButtonColor =
+                                                  Colors.grey;
                                             } else {
                                               selectedPlaylist = value;
-                                              pageTransitionButtonColor = Colors.orange;
+                                              pageTransitionButtonColor =
+                                                  Colors.orange;
                                             }
                                           });
                                         }),
@@ -105,15 +109,19 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                                       width: 200,
                                       child: Column(
                                         crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            MusicPlaylistMetadataCollection[index].title,
+                                            MusicPlaylistMetadataCollection[
+                                                    index]
+                                                .title,
                                             style: const TextStyle(
                                               fontSize: 24,
                                             ),
                                           ),
-                                          Text(MusicPlaylistMetadataCollection[index].subTitle),
+                                          Text(MusicPlaylistMetadataCollection[
+                                                  index]
+                                              .subTitle),
                                         ],
                                       ),
                                     ),
@@ -136,30 +144,32 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
             padding: const EdgeInsets.only(top: 10.0),
             child: SizedBox(
               height: 58,
-              width:224,
+              width: 224,
               child: ElevatedButton(
-                  child: Text('ダウンロード',style: TextStyle(fontSize: 24),),
-                  style: ElevatedButton.styleFrom(backgroundColor: pageTransitionButtonColor),
-                  onPressed: ()async{
-                      if(selectedPlaylist != -1) {
-                        generateMusicPlaylist();
-                        print(MusicPlaylist);
-                        int i;
-                        for(i=0; i < MusicPlaylist.length; i++){
-                          await downloadMusicFromFirebase(MusicPlaylist[i].fileName);
-                        }
-                        Navigator.push<void>(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (BuildContext context) =>
-                            const ShakePage(),
-                          ),
-                        );
-                      }else{
-                        null;
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: pageTransitionButtonColor),
+                  onPressed: () async {
+                    if (selectedPlaylist != -1) {
+                      generateMusicPlaylist();
+                      int i;
+                      for (i = 0; i < MusicPlaylist.length; i++) {
+                        await downloadMusicFromFirebase(
+                            MusicPlaylist[i].fileName);
                       }
+                      Navigator.push<void>(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (BuildContext context) => const ShakePage(),
+                        ),
+                      );
+                    } else {
+                      null;
                     }
-                  ),
+                  },
+                  child: const Text(
+                    'ダウンロード',
+                    style: TextStyle(fontSize: 24),
+                  )),
             ),
           )
         ],
@@ -168,12 +178,15 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
   }
 }
 
-void generateMusicPlaylist(){
+void generateMusicPlaylist() {
   int i;
-  for (i = 0; i < MusicPlaylistMetadataCollection[selectedPlaylist].music.length; i++) {
+  for (i = 0;
+      i < MusicPlaylistMetadataCollection[selectedPlaylist].music.length;
+      i++) {
     int j;
-    for (j = 0; j<MusicMetadataCollection.length; j++){
-      if (MusicPlaylistMetadataCollection[selectedPlaylist].music[i] == MusicMetadataCollection[j].displayName) {
+    for (j = 0; j < MusicMetadataCollection.length; j++) {
+      if (MusicPlaylistMetadataCollection[selectedPlaylist].music[i] ==
+          MusicMetadataCollection[j].displayName) {
         MusicPlaylist.add(MusicMetadataCollection[j]);
       }
     }
@@ -184,10 +197,10 @@ Future<void> downloadMusicFromFirebase(String filenameOfPlaylist) async {
   final storageRef = FirebaseStorage.instance.ref(filenameOfPlaylist);
 
   final appDocDir = await getApplicationDocumentsDirectory();
-  final filePath = "${appDocDir.path}/${filenameOfPlaylist}";
+  final filePath = "${appDocDir.path}/$filenameOfPlaylist";
   musicFilePath = appDocDir.path;
   //print(musicFilePath);
-  filenameOfPlaylist=filePath;
+  filenameOfPlaylist = filePath;
   final file = File(filePath);
   //debugPrint('$file');
 
@@ -215,15 +228,15 @@ Future<void> downloadMusicFromFirebase(String filenameOfPlaylist) async {
 }
 
 Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
-  if(MusicPlaylistMetadataCollection.length ==0) {
+  if (MusicPlaylistMetadataCollection.isEmpty) {
     var db1 = FirebaseFirestore.instance;
     db1.collection("MusicInfo").get().then(
-          (querySnapshot) {
-        print("Successfully completed");
+      (querySnapshot) {
         for (var docSnapshot in querySnapshot.docs) {
           //print('${docSnapshot.id} => ${docSnapshot.data()}');
           Map musicData = docSnapshot.data();
-          MusicMetadataCollection.add(MusicMetadata(musicData['bpm'], musicData['displayName'], musicData['fileName']));
+          MusicMetadataCollection.add(MusicMetadata(musicData['bpm'],
+              musicData['displayName'], musicData['fileName']));
         }
         //print(MusicMetadataCollection);
       },
@@ -231,13 +244,15 @@ Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
     );
     var db2 = FirebaseFirestore.instance;
     await db2.collection("MusicPlaylists").get().then(
-          (querySnapshot) {
-        print("Successfully completed");
+      (querySnapshot) {
         for (var docSnapshot in querySnapshot.docs) {
           //print('${docSnapshot.id} => ${docSnapshot.data()}');
           Map data = docSnapshot.data();
           MusicPlaylistMetadataCollection.add(MusicPlaylistMetadata(
-              data['Title'], data['Subtitle'], List.generate(data.length-2, (index) => data['music${index+1}'])));
+              data['Title'],
+              data['Subtitle'],
+              List.generate(
+                  data.length - 2, (index) => data['music${index + 1}'])));
         }
         //print(MusicPlaylistMetadataCollection);
       },
