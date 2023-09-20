@@ -39,14 +39,18 @@ class _RunPageState extends State<RunPage> {
   }
 
   void generateMusicPlaylist() {
-    final playList = ConcatenatingAudioSource(
+
+    // ランダム再生を可能にする
+    musicPlaylist.shuffle();
+
+    final musicPlayQueue = ConcatenatingAudioSource(
       useLazyPreparation: true,
       children: List.generate(
           musicPlaylist.length,
           (index) => AudioSource.file(
               '${musicFilePath}/${musicPlaylist[index].fileName}')),
     );
-    player.setAudioSource(playList, initialIndex: 0, initialPosition: Duration.zero);
+    player.setAudioSource(musicPlayQueue, initialIndex: 0, initialPosition: Duration.zero);
     player.setLoopMode(LoopMode.all);
   }
 
