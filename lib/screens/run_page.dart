@@ -5,9 +5,7 @@ import 'package:beatim5/screens/shake_page.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:beatim5/models/MusicMetadata.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:just_audio/just_audio.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:async';
 
 import '../functions/get_goal_speed.dart';
@@ -37,6 +35,8 @@ class _RunPageState extends State<RunPage> {
     goalSpeed = await getGoalSpeed();
     setState(() {});
   }
+
+  String speedMessage = 'いい感じ';
 
   void generateMusicPlaylist() {
     final playList = ConcatenatingAudioSource(
@@ -78,9 +78,19 @@ class _RunPageState extends State<RunPage> {
           if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < goalSpeed! - changeSpeedHurdle){
             playbackBpm ++;
             adjustSpeed();
+            setState(() {
+              speedMessage = 'もっと速く';
+            });
           }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! > goalSpeed! + changeSpeedHurdle){
             playbackBpm --;
             adjustSpeed();
+            setState(() {
+              speedMessage = 'もっと遅く';
+            });
+          }else{
+            setState(() {
+              speedMessage = 'いい感じ';
+            });
           }
       });
     });
@@ -103,111 +113,89 @@ class _RunPageState extends State<RunPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(
-                height: 10,
+                height: 150,
               ),
-              const Padding(
-                padding: EdgeInsets.only(top: 10),
-                child: SizedBox(
-                  width: 352,
-                  // explanation SizedBox の Width が 83　なので 52, 135
-                  height: 52,
-                  child: Center(
-                    child: Text(
-                      "走りはどうですか？",
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                ),
+              Text(
+                '現在のBPM',
+                style: TextStyle(fontSize: 30),
               ),
-              const Padding(
-                  padding: EdgeInsets.only(top: 10),
-                  child: SizedBox(
-                    width: 280,
-                    height: 83,
-                    child: Center(
-                      child: Text(
-                        "音楽の再生速度を再度変更したい、ランニングを終了する際は以下のボタンを押してください",
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  )),
-              const SizedBox(
-                height: 10,
+              Text(
+                '${playbackBpm.round()}',
+                style: TextStyle(fontSize: 60),
               ),
-              // SvgPicture.asset(
-              //   'images/exercise.svg',
-              //   semanticsLabel: 'Running',
-              //   width: 200,
-              //   height: 200,
-              // ),
-              const SizedBox(
-                height: 10,
+              Text(
+                 '${speedMessage}',
+                style: TextStyle(fontSize: 30),
               ),
               StreamBuilder(
                   stream: player.currentIndexStream,
                   builder: (BuildContext context, AsyncSnapshot<int?> snapshot){
                     adjustSpeed();
-                    return Text('${(player.currentIndex?? 0)+1}曲目を再生中');
+                    return SizedBox(height: 10,);
                   }
               ),
-              Text(
-                '最適なBPM',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-
-                  /*デバッグ用BPM微減ボタン　ここから*/
-                  ElevatedButton(onPressed: (){
-                    setState(() {
-                      playbackBpm --;
-                      adjustSpeed();
-                    });
-                  },child: Icon(Icons.remove)),
-                  /*デバッグ用BPM微減ボタン　ここまで*/
-
-                  Text(
-                    '${playbackBpm.round()}',
-                    style: Theme.of(context).textTheme.headlineLarge,
+              Center(
+                child: SizedBox(
+                  width: 250,
+                  height: 70,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: (){
+                          setState(() {
+                            player.seekToPrevious();
+                          });
+                        },
+                        icon: Icon(Icons.fast_rewind),
+                        iconSize: 60.0,
+                      ),
+                      StreamBuilder<PlayerState>(
+                        stream: player.playerStateStream,
+                        builder: (context, snapshot) {
+                          final playerState = snapshot.data;
+                          final playing = playerState?.playing;
+                          if (playing != true) {
+                            return IconButton(
+                              icon: const Icon(Icons.play_arrow),
+                              iconSize: 64.0,
+                              onPressed:(){
+                                setState(() {
+                                  player.play();
+                                });
+                              },
+                              color: Colors.black,
+                            );
+                          } else {
+                            return IconButton(
+                              icon: const Icon(Icons.pause),
+                              iconSize: 64.0,
+                              onPressed: (){
+                                setState(() {
+                                  player.pause();
+                                });
+                              },
+                              color: Colors.black,
+                            );
+                          }
+                        },
+                      ),
+                      IconButton(
+                        onPressed: (){
+                          setState(() {
+                            player.seekToNext();
+                          });
+                        },
+                        icon: Icon(Icons.fast_forward),
+                        iconSize: 60.0,
+                      )
+                    ],
                   ),
-
-                  /*デバッグ用BPM微増ボタン　ここから*/
-                  ElevatedButton(onPressed: (){
-                    setState(() {
-                      playbackBpm ++;
-                      adjustSpeed();
-                    });
-                  },child: Icon(Icons.add)),
-                  /*デバッグ用BPM微増ボタン　ここまで*/
-
-                ],
+                ),
               ),
-
-              /*GPSテスト用の速度表示部分　ここから */
-
-              Text(
-                speedMeterLog != null
-                    ? '${speedMeterLog!.currentSpeed.toStringAsFixed(2)}m/s'
-                    : 'Loading...',
-              ),
-
-              /*GPSテスト用の速度表示部分　ここまで */
-
-              // movePace と moveSpeed のデバッグ用表示
-              Text(goalSpeed != null
-                  ? '理想スピード: ${goalSpeed?.toStringAsFixed(2)}m/s (${convertSpeedToMovePace(goalSpeed!)?.toStringAsFixed(2)}min/km)'
-                  : "Speed not set"),
-
               Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: PageTransitionButton('再生速度を変更', () {
+                padding: const EdgeInsets.only(top: 70.0),
+                child: PageTransitionButton('BPMを再設定', () {
                   player.dispose();
                   Navigator.push<void>(
                     context,
