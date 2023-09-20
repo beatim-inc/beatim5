@@ -32,15 +32,15 @@ class _RunPageState extends State<RunPage> {
 
   double changeSpeedHurdle = 0.1;
   double changeHighSpeedHurdle = 0.2;
+
   _initializeGoalSpeed() async {
     goalSpeed = await getGoalSpeed();
     setState(() {});
   }
 
-  String speedMessage = 'いい感じ';
+  String speedMessage = '頑張って！';
 
   void generateMusicPlaylist() {
-
     // ランダム再生を可能にする
     musicPlaylist.shuffle();
 
@@ -51,11 +51,12 @@ class _RunPageState extends State<RunPage> {
           (index) => AudioSource.file(
               '${musicFilePath}/${musicPlaylist[index].fileName}')),
     );
-    player.setAudioSource(musicPlayQueue, initialIndex: 0, initialPosition: Duration.zero);
+    player.setAudioSource(musicPlayQueue,
+        initialIndex: 0, initialPosition: Duration.zero);
     player.setLoopMode(LoopMode.all);
   }
 
-  void adjustSpeed(){
+  void adjustSpeed() {
     player.setSpeed(playbackBpm / musicPlaylist[player.currentIndex ?? 0].bpm);
   }
 
@@ -73,36 +74,46 @@ class _RunPageState extends State<RunPage> {
     generateMusicPlaylist();
     player.play();
     adjustSpeed();
-    Timer.periodic(Duration(seconds: 1), (timer) {
+    Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         speedMeterLog?.getSpeed();
       });
     });
-    Timer.periodic(Duration(seconds: 10),(timer){
-      setState((){
-          if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < goalSpeed! - changeHighSpeedHurdle){
-            playbackBpm += 3;
-            adjustSpeed();
-          }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < goalSpeed! - changeSpeedHurdle){
-            playbackBpm += 1;
-            adjustSpeed();
-            setState(() {
-              speedMessage = 'もっと速く';
-            });
-          }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! > goalSpeed! + changeSpeedHurdle){
-            playbackBpm -= 1;
-            adjustSpeed();
-          }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! > goalSpeed! + changeHighSpeedHurdle){
-            playbackBpm -= 3;
-            adjustSpeed();
-            setState(() {
-              speedMessage = 'もっと遅く';
-            });
-          }else{
-            setState(() {
-              speedMessage = 'いい感じ';
-            });
-          }
+    Timer.periodic(const Duration(seconds: 10), (timer) {
+      setState(() {
+        if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! <
+            goalSpeed! - changeHighSpeedHurdle) {
+          playbackBpm += 3;
+          adjustSpeed();
+          setState(() {
+            speedMessage = 'ペースを速くしています！';
+          });
+        } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! <
+            goalSpeed! - changeSpeedHurdle) {
+          playbackBpm += 1;
+          adjustSpeed();
+          setState(() {
+            speedMessage = 'ペースをちょっと速くしています！';
+          });
+        } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! >
+            goalSpeed! + changeSpeedHurdle) {
+          playbackBpm -= 1;
+          adjustSpeed();
+          setState(() {
+            speedMessage = 'ペースをちょっと遅くしています！';
+          });
+        } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! >
+            goalSpeed! + changeHighSpeedHurdle) {
+          playbackBpm -= 3;
+          adjustSpeed();
+          setState(() {
+            speedMessage = 'ペースを遅くしています！';
+          });
+        } else {
+          setState(() {
+            speedMessage = 'ペースいい感じ！';
+          });
+        }
       });
     });
   }
@@ -126,24 +137,32 @@ class _RunPageState extends State<RunPage> {
               const SizedBox(
                 height: 150,
               ),
-              Text(
-                '現在のBPM',
+              const Text(
+                '今のBPM',
                 style: TextStyle(fontSize: 30),
               ),
               Text(
                 '${playbackBpm.round()}',
-                style: TextStyle(fontSize: 60),
+                style: const TextStyle(
+                  fontSize: 120,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               Text(
-                 '${speedMessage}',
-                style: TextStyle(fontSize: 30),
+                speedMessage,
+                style: const TextStyle(fontSize: 20),
               ),
               StreamBuilder(
                   stream: player.currentIndexStream,
-                  builder: (BuildContext context, AsyncSnapshot<int?> snapshot){
+                  builder:
+                      (BuildContext context, AsyncSnapshot<int?> snapshot) {
                     adjustSpeed();
-                    return SizedBox(height: 10,);
-                  }
+                    return const SizedBox(
+                      height: 10,
+                    );
+                  }),
+              const SizedBox(
+                height: 43,
               ),
               Center(
                 child: SizedBox(
@@ -153,7 +172,7 @@ class _RunPageState extends State<RunPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       IconButton(
-                        onPressed: (){
+                        onPressed: () {
                           setState(() {
                             player.seekToPrevious();
                           });
@@ -170,7 +189,7 @@ class _RunPageState extends State<RunPage> {
                             return IconButton(
                               icon: const Icon(Icons.play_arrow),
                               iconSize: 64.0,
-                              onPressed:(){
+                              onPressed: () {
                                 setState(() {
                                   player.play();
                                 });
@@ -181,7 +200,7 @@ class _RunPageState extends State<RunPage> {
                             return IconButton(
                               icon: const Icon(Icons.pause),
                               iconSize: 64.0,
-                              onPressed: (){
+                              onPressed: () {
                                 setState(() {
                                   player.pause();
                                 });
@@ -192,7 +211,7 @@ class _RunPageState extends State<RunPage> {
                         },
                       ),
                       IconButton(
-                        onPressed: (){
+                        onPressed: () {
                           setState(() {
                             player.seekToNext();
                           });
