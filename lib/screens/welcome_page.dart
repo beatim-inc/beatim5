@@ -8,7 +8,7 @@ class WelcomePage extends BaseLayout {
   @override
   String get title => 'Beatim Runner';
 
-  String get explanation => '検証用プロトタイプ';
+  String get explanation => 'ベータ版';
 
   @override
   Widget mainContent(BuildContext context) {
