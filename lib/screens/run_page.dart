@@ -38,6 +38,8 @@ class _RunPageState extends State<RunPage> {
     setState(() {});
   }
 
+  String speedMessage = 'ちょうど良いペースです';
+
   void generateMusicPlaylist() {
     final playList = ConcatenatingAudioSource(
       useLazyPreparation: true,
@@ -78,9 +80,19 @@ class _RunPageState extends State<RunPage> {
           if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < goalSpeed! - changeSpeedHurdle){
             playbackBpm ++;
             adjustSpeed();
+            setState(() {
+              speedMessage = 'ペースが落ちています';
+            });
           }else if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! > goalSpeed! + changeSpeedHurdle){
             playbackBpm --;
             adjustSpeed();
+            setState(() {
+              speedMessage = 'ペースが速すぎます';
+            });
+          }else{
+            setState(() {
+              speedMessage = 'ちょうど良いペースです';
+            });
           }
       });
     });
@@ -129,7 +141,7 @@ class _RunPageState extends State<RunPage> {
                     height: 83,
                     child: Center(
                       child: Text(
-                        "音楽の再生速度を再度変更したい、ランニングを終了する際は以下のボタンを押してください",
+                        "ランニングを終了する際は\n以下のボタンを押してください",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
@@ -153,58 +165,21 @@ class _RunPageState extends State<RunPage> {
                   stream: player.currentIndexStream,
                   builder: (BuildContext context, AsyncSnapshot<int?> snapshot){
                     adjustSpeed();
-                    return Text('${(player.currentIndex?? 0)+1}曲目を再生中');
+                    return SizedBox(height: 2,width: 2,);
                   }
               ),
               Text(
                 '最適なBPM',
                 style: Theme.of(context).textTheme.headlineSmall,
               ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-
-                  /*デバッグ用BPM微減ボタン　ここから*/
-                  ElevatedButton(onPressed: (){
-                    setState(() {
-                      playbackBpm --;
-                      adjustSpeed();
-                    });
-                  },child: Icon(Icons.remove)),
-                  /*デバッグ用BPM微減ボタン　ここまで*/
-
-                  Text(
-                    '${playbackBpm.round()}',
-                    style: Theme.of(context).textTheme.headlineLarge,
-                  ),
-
-                  /*デバッグ用BPM微増ボタン　ここから*/
-                  ElevatedButton(onPressed: (){
-                    setState(() {
-                      playbackBpm ++;
-                      adjustSpeed();
-                    });
-                  },child: Icon(Icons.add)),
-                  /*デバッグ用BPM微増ボタン　ここまで*/
-
-                ],
-              ),
-
-              /*GPSテスト用の速度表示部分　ここから */
-
               Text(
-                speedMeterLog != null
-                    ? '${speedMeterLog!.currentSpeed.toStringAsFixed(2)}m/s'
-                    : 'Loading...',
+                '${playbackBpm.round()}',
+                style: Theme.of(context).textTheme.headlineLarge,
               ),
-
-              /*GPSテスト用の速度表示部分　ここまで */
-
-              // movePace と moveSpeed のデバッグ用表示
-              Text(goalSpeed != null
-                  ? '理想スピード: ${goalSpeed?.toStringAsFixed(2)}m/s (${convertSpeedToMovePace(goalSpeed!)?.toStringAsFixed(2)}min/km)'
-                  : "Speed not set"),
-
+              Text(
+                 '${speedMessage}',
+                style: TextStyle(fontSize: 30),
+              ),
               Padding(
                 padding: const EdgeInsets.only(top: 20.0),
                 child: PageTransitionButton('再生速度を変更', () {
