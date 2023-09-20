@@ -160,7 +160,7 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
                         child: ListTile(
                           title: Padding(
                               padding: const EdgeInsets.only(
-                                  bottom: 30.0, top: 20.0),
+                                  bottom: 20.0, top: 20.0),
                               child: RichText(
                                 text: TextSpan(
                                   style: DefaultTextStyle.of(context)
