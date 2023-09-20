@@ -1,16 +1,14 @@
-import 'package:beatim5/models/MusicMetadata.dart';
-import 'package:beatim5/models/MusicPlaylistMetadata.dart';
+import 'package:beatim5/models/music_metadata.dart';
+import 'package:beatim5/models/music_playlist_metadata.dart';
 import 'package:beatim5/providers/musicfile_path.dart';
 import 'package:beatim5/screens/shake_page.dart';
-import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-int selectedPlaylist = -1;
+import 'package:carousel_slider/carousel_slider.dart';
 
 class ChoosePlaylistPage extends StatefulWidget {
   const ChoosePlaylistPage({Key? key}) : super(key: key);
@@ -20,7 +18,23 @@ class ChoosePlaylistPage extends StatefulWidget {
 }
 
 class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
-//  int selectedPlaylistIndex = -1;
+  List<MusicPlaylistMetadata> musicPlaylistMetadataCollection = [];
+  List<MusicMetadata> musicMetadataCollection = [];
+
+  bool isLoadingMusicData = true;
+  int currentCarouselIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    initializeMusicMetadataCollectionAndMusicPlaylistMetadataCollection(
+            musicPlaylistMetadataCollection, musicMetadataCollection)
+        .then((result) {
+      setState(() {
+        isLoadingMusicData = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +54,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
               height: 52,
               child: Center(
                 child: Text(
-                  '再生楽曲の選択',
+                  '再生する楽曲の選択',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -56,7 +70,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
               height: 83,
               child: Center(
                 child: Text(
-                  '走りに利用する音楽をダウンロードしてください',
+                  'お好きな音楽プレイリストを選択しましょう！',
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
@@ -65,96 +79,88 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
               ),
             ),
           ),
-          Container(
-              alignment: Alignment.center,
-              height: 400,
-              child: FutureBuilder<String>(
-                  future: fetchMusicInfoAndMusicPlayListsFromFireStore(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      debugPrint('loading');
-                      return const Text('音楽リストを取得中です...');
-                    } else if (snapshot.hasError) {
-                      debugPrint('error');
-                      return const Text('音楽リストの取得中にエラーが発生しました');
-                    } else {
-                      debugPrint('completed');
-                      return ListView.builder(
-                          itemCount: MusicPlaylistMetadataCollection.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Radio(value: index,
-                                        groupValue: selectedPlaylist,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            if (value == null) {
-                                              selectedPlaylist = -1;
-                                            } else {
-                                              selectedPlaylist = value;
-                                            }
-                                          });
-                                        }),
-                                    SizedBox(
-                                      width: 200,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            MusicPlaylistMetadataCollection[index].title,
-                                            style: const TextStyle(
-                                              fontSize: 24,
-                                            ),
-                                          ),
-                                          Text(MusicPlaylistMetadataCollection[index].subTitle),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    SvgPicture.asset(
-                                      'images/playlist.svg',
-                                      semanticsLabel: 'Music Playlist',
-                                      width: 80,
-                                      height: 80,
-                                    ),
-                                    const SizedBox(width: 10),
-                                  ],
+          isLoadingMusicData
+              ? const SizedBox(
+                  height: 400,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              : SizedBox(
+                  height: 400,
+                  child: CarouselSlider.builder(
+                    itemCount: musicPlaylistMetadataCollection.length,
+                    itemBuilder: (context, index, realIdx) {
+                      final musicPlaylistMetadata =
+                          musicPlaylistMetadataCollection[index];
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                            color: Colors.black,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: Padding(
+                            padding:
+                                const EdgeInsets.only(bottom: 30.0, top: 20.0),
+                            child: ListTile(
+                              title: Padding(
+                                padding: const EdgeInsets.only(bottom: 8.0),
+                                child: Text(
+                                  musicPlaylistMetadata.title,
+                                  style: const TextStyle(
+                                    fontSize: 20.0,
+                                  ),
                                 ),
-                              ],
-                            );
-                          });
-                    }
-                  })),
+                              ),
+                              subtitle: Text(
+                                musicPlaylistMetadata.subTitle,
+                                style: const TextStyle(
+                                  fontSize: 14.0,
+                                ),
+                              ),
+                            )),
+                      );
+                    },
+                    options: CarouselOptions(
+                      height: 350.0,
+                      initialPage: 0,
+                      enlargeCenterPage: true,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          currentCarouselIndex = index;
+                        });
+                        FocusScope.of(context).unfocus();
+                      },
+                    ),
+                  ),
+                ),
           Padding(
             padding: const EdgeInsets.only(top: 10.0),
-            child: PageTransitionButton(
-                'ダウンロード',
-                (){
-                    if(selectedPlaylist != -1) {
-                      int i;
-                      for (i = 0; i < MusicMetadataCollection.length; i++) {
-                        if (MusicMetadataCollection[i].displayName == MusicPlaylistMetadataCollection[selectedPlaylist].music1) {
-                          MusicPlaylist.add(MusicMetadataCollection[i]);
-                        }
-                      }
-                      print(MusicPlaylist);
-                      downloadMusicFromFirebase(MusicPlaylist[0].fileName);
-                      Navigator.push<void>(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (BuildContext context) =>
-                          const ShakePage(),
-                        ),
-                      );
-                    }else{
-                      null;
-                    }
-                  }
-                ),
+            child: SizedBox(
+              height: 58,
+              width: 224,
+              child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(),
+                  onPressed: () async {
+                    generateMusicPlaylist(musicPlaylistMetadataCollection,
+                        musicMetadataCollection, currentCarouselIndex);
+
+                    Navigator.push<void>(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (BuildContext context) => const ShakePage(),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    'ダウンロード',
+                    style: TextStyle(fontSize: 24),
+                  )),
+            ),
           )
         ],
       ),
@@ -162,22 +168,51 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
   }
 }
 
-void downloadMusicFromFirebase(String filenameOfPlaylist) async {
+Future<void> generateMusicPlaylist(musicPlaylistMetadataCollection,
+    musicMetadataCollection, currentCarouselIndex) async {
+  _addMusicPlaylistMetadataToMusicPlaylist(musicPlaylistMetadataCollection,
+      musicMetadataCollection, currentCarouselIndex);
+  int i;
+  for (i = 0; i < musicPlaylist.length; i++) {
+    await _downloadMusicFromFirebase(musicPlaylist[i].fileName);
+  }
+}
+
+void _addMusicPlaylistMetadataToMusicPlaylist(musicPlaylistMetadataCollection,
+    musicMetadataCollection, currentCarouselIndex) {
+  int i;
+  for (i = 0;
+      i <
+          musicPlaylistMetadataCollection[currentCarouselIndex]
+              .musicName
+              .length;
+      i++) {
+    int j;
+    for (j = 0; j < musicMetadataCollection.length; j++) {
+      if (musicPlaylistMetadataCollection[currentCarouselIndex].musicName[i] ==
+          musicMetadataCollection[j].displayName) {
+        musicPlaylist.add(musicMetadataCollection[j]);
+      }
+    }
+  }
+}
+
+Future<void> _downloadMusicFromFirebase(String filenameOfPlaylist) async {
   final storageRef = FirebaseStorage.instance.ref(filenameOfPlaylist);
 
   final appDocDir = await getApplicationDocumentsDirectory();
-  final filePath = "${appDocDir.path}/${filenameOfPlaylist}";
+  final filePath = "${appDocDir.path}/$filenameOfPlaylist";
   musicFilePath = appDocDir.path;
-  print(musicFilePath);
-  filenameOfPlaylist=filePath;
+  //print(musicFilePath);
+  filenameOfPlaylist = filePath;
   final file = File(filePath);
-  debugPrint('$file');
+  //debugPrint('$file');
 
   final downloadTask = storageRef.writeToFile(file);
   downloadTask.snapshotEvents.listen((taskSnapshot) {
     switch (taskSnapshot.state) {
       case TaskState.running:
-        debugPrint('downloading');
+        // debugPrint('downloading');
         break;
       case TaskState.paused:
         debugPrint('paused');
@@ -193,37 +228,50 @@ void downloadMusicFromFirebase(String filenameOfPlaylist) async {
         break;
     }
   });
+  return;
 }
 
-Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
-  if(MusicPlaylistMetadataCollection.length ==0) {
-    var db1 = FirebaseFirestore.instance;
-    db1.collection("MusicInfo").get().then(
-          (querySnapshot) {
-        print("Successfully completed");
-        for (var docSnapshot in querySnapshot.docs) {
-          print('${docSnapshot.id} => ${docSnapshot.data()}');
-          Map musicData = docSnapshot.data();
-          MusicMetadataCollection.add(MusicMetadata(musicData['bpm'], musicData['displayName'], musicData['fileName']));
-        }
-        print(MusicMetadataCollection);
-      },
-      onError: (e) => print("Error completing: $e"),
-    );
-    var db2 = FirebaseFirestore.instance;
-    await db2.collection("MusicPlaylists").get().then(
-          (querySnapshot) {
-        print("Successfully completed");
-        for (var docSnapshot in querySnapshot.docs) {
-          print('${docSnapshot.id} => ${docSnapshot.data()}');
-          Map data = docSnapshot.data();
-          MusicPlaylistMetadataCollection.add(MusicPlaylistMetadata(
-              data['Title'], data['Subtitle'], data['music1']));
-        }
-        print(MusicPlaylistMetadataCollection);
-      },
-      onError: (e) => print("Error completing: $e"),
-    );
-  }
-  return "loading playlists";
+Future<void>
+    initializeMusicMetadataCollectionAndMusicPlaylistMetadataCollection(
+        musicPlaylistMetadataCollection, musicMetadataCollection) async {
+  await _initializeMusicInfoFromFireStore(musicMetadataCollection);
+  await _initializeMusicPlayListsFromFireStore(musicPlaylistMetadataCollection);
+}
+
+Future<void> _initializeMusicInfoFromFireStore(musicMetadataCollection) async {
+  // 音楽情報をFireStoreから取得し初期化する
+  // ただし楽曲データそのものはダウンロードせず、あくまでMetadataのみをダウンロードする
+
+  var db = FirebaseFirestore.instance;
+  await db.collection("MusicInfo").get().then(
+    (querySnapshot) {
+      for (var docSnapshot in querySnapshot.docs) {
+        Map musicData = docSnapshot.data();
+        musicMetadataCollection.add(MusicMetadata(
+            musicData['bpm'], musicData['displayName'], musicData['fileName']));
+      }
+    },
+    onError: (e) => print("Error completing: $e"),
+  );
+}
+
+Future<void> _initializeMusicPlayListsFromFireStore(
+    musicPlaylistMetadataCollection) async {
+  // プレイリスト情報をFireStoreから取得し初期化する
+  // ただしプレイリストに含まれた楽曲データなどはダウンロードせず、あくまでMetadataのみをダウンロードする
+
+  var db = FirebaseFirestore.instance;
+  await db.collection("MusicPlaylists").get().then(
+    (querySnapshot) {
+      for (var docSnapshot in querySnapshot.docs) {
+        Map data = docSnapshot.data();
+        musicPlaylistMetadataCollection.add(MusicPlaylistMetadata(
+            data['Title'],
+            data['Subtitle'],
+            List.generate(
+                data.length - 2, (index) => data['music${index + 1}'])));
+      }
+    },
+    onError: (e) => print("Error completing: $e"),
+  );
 }

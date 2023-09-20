@@ -3,16 +3,16 @@ import 'package:beatim5/providers/musicfile_path.dart';
 import 'package:beatim5/screens/finish_run_page.dart';
 import 'package:beatim5/screens/shake_page.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
-import 'package:beatim5/models/MusicMetadata.dart';
+import 'package:beatim5/models/music_metadata.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:just_audio/just_audio.dart';
 import 'dart:async';
 
+import '../functions/get_goal_speed.dart';
 import '../functions/get_or_generate_user_id.dart';
 
 class RunPage extends StatefulWidget {
-  final double playbackBpm;
+  double playbackBpm;
 
   RunPage({required this.playbackBpm});
 
@@ -21,28 +21,50 @@ class RunPage extends StatefulWidget {
 }
 
 class _RunPageState extends State<RunPage> {
-  final double playbackBpm;
-  AudioPlayer player = AudioPlayer();
-
-  speedMeterLogManager? speedMeterLog;
+  double playbackBpm;
 
   _RunPageState({required this.playbackBpm});
 
+  AudioPlayer player = AudioPlayer();
+  speedMeterLogManager? speedMeterLog;
+
+  double? goalSpeed;
+
+  double changeSpeedHurdle = 0.1;
+  double changeHighSpeedHurdle = 0.2;
+
+  _initializeGoalSpeed() async {
+    goalSpeed = await getGoalSpeed();
+    setState(() {});
+  }
+
+  String speedMessage = '頑張って！';
+
   void generateMusicPlaylist() {
-    final playList = ConcatenatingAudioSource(
+    // ランダム再生を可能にする
+    musicPlaylist.shuffle();
+
+    final musicPlayQueue = ConcatenatingAudioSource(
       useLazyPreparation: true,
       children: List.generate(
-          1,
+          musicPlaylist.length,
           (index) => AudioSource.file(
-              '${musicFilePath}/${MusicPlaylist[0].fileName}')),
+              '${musicFilePath}/${musicPlaylist[index].fileName}')),
     );
-    player.setAudioSource(playList,
+    player.setAudioSource(musicPlayQueue,
         initialIndex: 0, initialPosition: Duration.zero);
+    player.setLoopMode(LoopMode.all);
+  }
+
+  void adjustSpeed() {
+    player.setSpeed(playbackBpm / musicPlaylist[player.currentIndex ?? 0].bpm);
   }
 
   @override
   void initState() {
     super.initState();
+
+    _initializeGoalSpeed();
 
     getOrGenerateUserId().then((userId) {
       //ログの生成
@@ -51,12 +73,55 @@ class _RunPageState extends State<RunPage> {
 
     generateMusicPlaylist();
     player.play();
-    player.setSpeed(playbackBpm / MusicPlaylist[0].bpm);
-    Timer.periodic(Duration(seconds: 1), (timer) {
+    adjustSpeed();
+    Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         speedMeterLog?.getSpeed();
       });
     });
+    Timer.periodic(const Duration(seconds: 10), (timer) {
+      setState(() {
+        if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! <
+            goalSpeed! - changeHighSpeedHurdle) {
+          playbackBpm += 3;
+          adjustSpeed();
+          setState(() {
+            speedMessage = 'ペースを速くしています！';
+          });
+        } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! <
+            goalSpeed! - changeSpeedHurdle) {
+          playbackBpm += 1;
+          adjustSpeed();
+          setState(() {
+            speedMessage = 'ペースをちょっと速くしています！';
+          });
+        } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! >
+            goalSpeed! + changeSpeedHurdle) {
+          playbackBpm -= 1;
+          adjustSpeed();
+          setState(() {
+            speedMessage = 'ペースをちょっと遅くしています！';
+          });
+        } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! >
+            goalSpeed! + changeHighSpeedHurdle) {
+          playbackBpm -= 3;
+          adjustSpeed();
+          setState(() {
+            speedMessage = 'ペースを遅くしています！';
+          });
+        } else {
+          setState(() {
+            speedMessage = 'ペースいい感じ！';
+          });
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    player.dispose();
+    super.dispose();
   }
 
   @override
@@ -70,75 +135,98 @@ class _RunPageState extends State<RunPage> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(
-                height: 50,
+                height: 150,
               ),
-              const Padding(
-                padding: EdgeInsets.only(top: 30),
+              const Text(
+                '今のBPM',
+                style: TextStyle(fontSize: 30),
+              ),
+              Text(
+                '${playbackBpm.round()}',
+                style: const TextStyle(
+                  fontSize: 120,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              Text(
+                speedMessage,
+                style: const TextStyle(fontSize: 20),
+              ),
+              StreamBuilder(
+                  stream: player.currentIndexStream,
+                  builder:
+                      (BuildContext context, AsyncSnapshot<int?> snapshot) {
+                    adjustSpeed();
+                    return const SizedBox(
+                      height: 10,
+                    );
+                  }),
+              const SizedBox(
+                height: 43,
+              ),
+              Center(
                 child: SizedBox(
-                  width: 352,
-                  // explanation SizedBox の Width が 83　なので 52, 135
-                  height: 52,
-                  child: Center(
-                    child: Text(
-                      "走りはどうですか？",
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
+                  width: 250,
+                  height: 70,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            player.seekToPrevious();
+                          });
+                        },
+                        icon: Icon(Icons.fast_rewind),
+                        iconSize: 60.0,
                       ),
-                    ),
+                      StreamBuilder<PlayerState>(
+                        stream: player.playerStateStream,
+                        builder: (context, snapshot) {
+                          final playerState = snapshot.data;
+                          final playing = playerState?.playing;
+                          if (playing != true) {
+                            return IconButton(
+                              icon: const Icon(Icons.play_arrow),
+                              iconSize: 64.0,
+                              onPressed: () {
+                                setState(() {
+                                  player.play();
+                                });
+                              },
+                              color: Colors.black,
+                            );
+                          } else {
+                            return IconButton(
+                              icon: const Icon(Icons.pause),
+                              iconSize: 64.0,
+                              onPressed: () {
+                                setState(() {
+                                  player.pause();
+                                });
+                              },
+                              color: Colors.black,
+                            );
+                          }
+                        },
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            player.seekToNext();
+                          });
+                        },
+                        icon: Icon(Icons.fast_forward),
+                        iconSize: 60.0,
+                      )
+                    ],
                   ),
                 ),
               ),
-              const Padding(
-                  padding: EdgeInsets.only(top: 14),
-                  child: SizedBox(
-                    width: 280,
-                    height: 83,
-                    child: Center(
-                      child: Text(
-                        "音楽の再生速度を再度変更したい、ランニングを終了する際は以下のボタンを押してください",
-                        style: TextStyle(
-                          fontSize: 17,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  )),
-              const SizedBox(
-                height: 20,
-              ),
-              SvgPicture.asset(
-                'images/exercise.svg',
-                semanticsLabel: 'Running',
-                width: 200,
-                height: 200,
-              ),
-              const SizedBox(
-                height: 20,
-              ),
-              Text(
-                '最適なBPM',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              Text(
-                '${widget.playbackBpm.round()}',
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
-
-              /*GPSテスト用の速度表示部分　ここから */
-
-              Text(
-                speedMeterLog != null
-                    ? '${speedMeterLog!.currentSpeed.toStringAsFixed(2)}m/s'
-                    : 'Loading...',
-              ),
-
-              /*GPSテスト用の速度表示部分　ここまで */
-
               Padding(
-                padding: const EdgeInsets.only(top: 20.0),
-                child: PageTransitionButton('再生速度を変更', () {
-                  player.stop();
+                padding: const EdgeInsets.only(top: 70.0),
+                child: PageTransitionButton('BPMを再設定', () {
+                  player.dispose();
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
@@ -150,7 +238,7 @@ class _RunPageState extends State<RunPage> {
               Padding(
                 padding: const EdgeInsets.only(top: 10.0),
                 child: PageTransitionButton('ランニング終了', () {
-                  player.stop();
+                  player.dispose();
                   speedMeterLog?.sendSpeedLog();
                   Navigator.push<void>(
                     context,

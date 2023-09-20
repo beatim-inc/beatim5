@@ -3,7 +3,6 @@ import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:convert';
-import 'dart:math';
 
 class speedMeterLogManager {
 
@@ -18,7 +17,7 @@ class speedMeterLogManager {
   List<Map> speedLog = [];
   double lowpassFilteredSpeed=0;
   double lowpassFilteredSpeedPre=0;
-  double gain = 0.61413; //サンプリング周波数1,カットオフ周波数0.1とした
+  double gain = 0.79915; //サンプリング周波数1,カットオフ周波数0.04wqとした
 
 
   void getSpeed()async{
@@ -34,10 +33,10 @@ class speedMeterLogManager {
       lowpassFilteredSpeedPre = lowpassFilteredSpeed;
       lowpassFilteredSpeed = gain*lowpassFilteredSpeedPre + (1-gain)*currentSpeed;
       speedLog.add({"time":DateTime.now().toString(),"speed":currentSpeed,"lowpassFilteredSpeed":lowpassFilteredSpeed});
-      print("${currentPosition.latitude},${currentPosition.longitude}");
-      print(currentSpeed);
+      // print("${currentPosition.latitude},${currentPosition.longitude}");
+      // print(currentSpeed);
     }else{
-      print("時間が経過したため速度計測を終了しました");
+      // print("時間が経過したため速度計測を終了しました");
     }
   }
 

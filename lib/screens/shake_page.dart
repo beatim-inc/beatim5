@@ -3,16 +3,16 @@ import 'dart:math';
 
 import 'package:beatim5/models/shake_log_manager.dart';
 import 'package:beatim5/screens/run_page.dart';
-import 'package:beatim5/templates/base_layout.dart';
-import 'package:beatim5/widgets/counter_display.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:sensors/sensors.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../functions/get_or_generate_user_id.dart';
+import '../widgets/page_transition_button.dart';
 
 class ShakePage extends StatefulWidget {
   const ShakePage({super.key});
@@ -36,7 +36,7 @@ class _ShakePageState extends State<ShakePage> {
   List<double> gyroFiltered = [0, 0, 0];
   List<double> preGyroNormalized = [0, 0, 1]; // 正規化した角速度ベクトル. ステップ取得時に更新
   double hurdolRadpersec = 2.5;
-  final List<int> _intervals = List.filled(16, 0);
+  final List<int> _intervals = List.filled(24, 0);
   int preStepTime = 0,
       intervalMin = 200,
       intervalMax = 750,
@@ -189,7 +189,7 @@ class _ShakePageState extends State<ShakePage> {
 
       // カウンターが溜まったらBPMを修正する
       if (counter == _intervals.length) {
-        playbackBpm = calcBpmFromIntervals(_intervals);
+        playbackBpm = calcBpmFromIntervals(_intervals.skip(8).toList());
 
         shakeLog.writeLogToFirebaseAsJson();
 
@@ -312,7 +312,7 @@ class _ShakePageState extends State<ShakePage> {
                     height: 120,
                     child: Center(
                       child: Text(
-                        "スマホを片手に持ち、走るペースに合わせて腕を振って走り始めましょう！音楽は自動で再生されます。再生されたらスマホを手に持つ必要はありません。",
+                        "スマホを手に持ち、自分のペースに合わせて腕を振りましょう！音楽は自動で再生され、再生後はスマホを手に持つ必要はありません。",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
@@ -330,15 +330,22 @@ class _ShakePageState extends State<ShakePage> {
                 height: 200,
               ),
               const SizedBox(
-                height: 50,
+                height: 40,
               ),
-              // Text(
-              //   'BPM ${playbackBpm.round()}',
-              //   style: Theme.of(context).textTheme.headlineMedium,
-              // ),
               Text(
                 '$counter / ${_intervals.length}',
                 style: Theme.of(context).textTheme.headlineLarge,
+              ),
+              const SizedBox(
+                height: 35,
+              ),
+              PageTransitionButton(
+                '腕振りガイド',
+                () {
+                  final url = Uri.parse(
+                      'https://www.beatim.co.jp/posts/2023-09-20-19-00/');
+                  launchUrl(url);
+                },
               ),
             ],
           ),

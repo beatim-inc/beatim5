@@ -18,20 +18,20 @@ abstract class BaseLayout extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
-        leading: IconButton(
-          icon: SvgPicture.asset(
-            'images/home.svg',
-            semanticsLabel: 'Go to Top page',
-            width: 20,
-            height: 20,
-          ),
-          onPressed: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => WelcomePage()),
-            );
-          },
-        ),
+        // leading: IconButton(
+        //   icon: SvgPicture.asset(
+        //     'images/home.svg',
+        //     semanticsLabel: 'Go to Top page',
+        //     width: 20,
+        //     height: 20,
+        //   ),
+        //   onPressed: () {
+        //     Navigator.push(
+        //       context,
+        //       MaterialPageRoute(builder: (context) => WelcomePage()),
+        //     );
+        //   },
+        // ),
       ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
