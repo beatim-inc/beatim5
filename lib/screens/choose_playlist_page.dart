@@ -9,8 +9,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-int selectedPlaylist = -1;
+import 'package:carousel_slider/carousel_slider.dart';
 
 class ChoosePlaylistPage extends StatefulWidget {
   const ChoosePlaylistPage({Key? key}) : super(key: key);
@@ -21,8 +20,22 @@ class ChoosePlaylistPage extends StatefulWidget {
 
 class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
   Color pageTransitionButtonColor = Colors.grey;
+  List<MusicPlaylistMetadata> musicPlaylistMetadataCollection = [];
 
-//  int selectedPlaylistIndex = -1;
+  bool isLoadingMusicData = true;
+  int currentCarouselIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    updateMusicInfoAndMusicPlayListsFromFireStore(
+            musicPlaylistMetadataCollection)
+        .then((result) {
+      setState(() {
+        isLoadingMusicData = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +55,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
               height: 52,
               child: Center(
                 child: Text(
-                  '再生楽曲の選択',
+                  '再生する楽曲の選択',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -58,7 +71,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
               height: 83,
               child: Center(
                 child: Text(
-                  '走りに利用する音楽をダウンロードしてください',
+                  'お好きな音楽プレイリストを選択しましょう！',
                   style: TextStyle(
                     fontSize: 17,
                     fontWeight: FontWeight.bold,
@@ -67,79 +80,48 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
               ),
             ),
           ),
-          Container(
-              alignment: Alignment.center,
-              height: 400,
-              child: FutureBuilder<String>(
-                  future: fetchMusicInfoAndMusicPlayListsFromFireStore(),
-                  builder: (context, snapshot) {
-                    if (snapshot.connectionState == ConnectionState.waiting) {
-                      debugPrint('loading');
-                      return const Text('音楽リストを取得中です...');
-                    } else if (snapshot.hasError) {
-                      debugPrint('error');
-                      return const Text('音楽リストの取得中にエラーが発生しました');
-                    } else {
-                      debugPrint('completed');
-                      return ListView.builder(
-                          itemCount: MusicPlaylistMetadataCollection.length,
-                          itemBuilder: (BuildContext context, int index) {
-                            return Column(
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Radio(
-                                        value: index,
-                                        groupValue: selectedPlaylist,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            if (value == null) {
-                                              selectedPlaylist = -1;
-                                              pageTransitionButtonColor =
-                                                  Colors.grey;
-                                            } else {
-                                              selectedPlaylist = value;
-                                              pageTransitionButtonColor =
-                                                  Colors.orange;
-                                            }
-                                          });
-                                        }),
-                                    SizedBox(
-                                      width: 200,
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            MusicPlaylistMetadataCollection[
-                                                    index]
-                                                .title,
-                                            style: const TextStyle(
-                                              fontSize: 24,
-                                            ),
-                                          ),
-                                          Text(MusicPlaylistMetadataCollection[
-                                                  index]
-                                              .subTitle),
-                                        ],
-                                      ),
-                                    ),
-                                    const SizedBox(width: 10),
-                                    SvgPicture.asset(
-                                      'images/playlist.svg',
-                                      semanticsLabel: 'Music Playlist',
-                                      width: 80,
-                                      height: 80,
-                                    ),
-                                    const SizedBox(width: 10),
-                                  ],
-                                ),
-                              ],
-                            );
-                          });
-                    }
-                  })),
+          isLoadingMusicData
+              ? const SizedBox(
+                  height: 400,
+                  child: Center(
+                    child: CircularProgressIndicator(),
+                  ),
+                )
+              : SizedBox(
+                  height: 400,
+                  child: CarouselSlider.builder(
+                    itemCount: musicPlaylistMetadataCollection.length,
+                    itemBuilder: (context, index, realIdx) {
+                      final musicPlaylistMetadata =
+                          musicPlaylistMetadataCollection[index];
+                      return Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          border: Border.all(
+                            color: Colors.black,
+                            width: 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.all(8),
+                        child: ListTile(
+                            title: Text(musicPlaylistMetadata.title),
+                            subtitle: Text(musicPlaylistMetadata.subTitle)),
+                      );
+                    },
+                    options: CarouselOptions(
+                      height: 350.0,
+                      initialPage: 0,
+                      enlargeCenterPage: true,
+                      onPageChanged: (index, reason) {
+                        setState(() {
+                          currentCarouselIndex = index;
+                        });
+                        FocusScope.of(context).unfocus();
+                      },
+                    ),
+                  ),
+                ),
           Padding(
             padding: const EdgeInsets.only(top: 10.0),
             child: SizedBox(
@@ -149,8 +131,9 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                   style: ElevatedButton.styleFrom(
                       backgroundColor: pageTransitionButtonColor),
                   onPressed: () async {
-                    if (selectedPlaylist != -1) {
-                      generateMusicPlaylist();
+                    if (currentCarouselIndex != -1) {
+                      generateMusicPlaylist(
+                          musicPlaylistMetadataCollection, currentCarouselIndex);
                       int i;
                       for (i = 0; i < MusicPlaylist.length; i++) {
                         await downloadMusicFromFirebase(
@@ -178,14 +161,14 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
   }
 }
 
-void generateMusicPlaylist() {
+void generateMusicPlaylist(musicPlaylistMetadataCollection, _currentIndex) {
   int i;
   for (i = 0;
-      i < MusicPlaylistMetadataCollection[selectedPlaylist].music.length;
+      i < musicPlaylistMetadataCollection[_currentIndex].music.length;
       i++) {
     int j;
     for (j = 0; j < MusicMetadataCollection.length; j++) {
-      if (MusicPlaylistMetadataCollection[selectedPlaylist].music[i] ==
+      if (musicPlaylistMetadataCollection[_currentIndex].music[i] ==
           MusicMetadataCollection[j].displayName) {
         MusicPlaylist.add(MusicMetadataCollection[j]);
       }
@@ -227,8 +210,12 @@ Future<void> downloadMusicFromFirebase(String filenameOfPlaylist) async {
   return;
 }
 
-Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
-  if (MusicPlaylistMetadataCollection.isEmpty) {
+Future<String> updateMusicInfoAndMusicPlayListsFromFireStore(
+    musicPlaylistMetadataCollection) async {
+  // musicPlaylistMetadataCollectionにFireStoreからダウンロードした情報を追加します
+  // 副作用があるため将来的には musicPlaylistMetadataCollection の引数は削除したい
+
+  if (musicPlaylistMetadataCollection.isEmpty) {
     var db1 = FirebaseFirestore.instance;
     db1.collection("MusicInfo").get().then(
       (querySnapshot) {
@@ -248,7 +235,7 @@ Future<String> fetchMusicInfoAndMusicPlayListsFromFireStore() async {
         for (var docSnapshot in querySnapshot.docs) {
           //print('${docSnapshot.id} => ${docSnapshot.data()}');
           Map data = docSnapshot.data();
-          MusicPlaylistMetadataCollection.add(MusicPlaylistMetadata(
+          musicPlaylistMetadataCollection.add(MusicPlaylistMetadata(
               data['Title'],
               data['Subtitle'],
               List.generate(
