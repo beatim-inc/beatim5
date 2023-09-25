@@ -18,6 +18,7 @@ abstract class BaseLayout extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        toolbarHeight: 0.0, // カスタムの高さを指定
         // leading: IconButton(
         //   icon: SvgPicture.asset(
         //     'images/home.svg',
@@ -34,13 +35,14 @@ abstract class BaseLayout extends StatelessWidget {
         // ),
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(
-            height: 50,
+            height: 10,
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 30),
+            padding: const EdgeInsets.only(top: 50),
             child: SizedBox(
               width: 352,
               // explanation SizedBox の Width が 83　なので 52, 135
@@ -74,9 +76,9 @@ abstract class BaseLayout extends StatelessWidget {
                   )
                 : null,
           ),
-          SizedBox(height: 400, child: mainContent(context)),
+          SizedBox(height: 300, child: mainContent(context)),
           Padding(
-            padding: const EdgeInsets.only(top: 10.0),
+            padding: const EdgeInsets.only(top: 10.0, bottom: 10.0),
             child: buttomContent(context),
           )
         ],

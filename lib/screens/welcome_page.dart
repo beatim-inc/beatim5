@@ -1,10 +1,14 @@
-import 'package:beatim5/screens/data_collect_agree_page.dart';
+import 'package:beatim5/screens/earphones_recommend_page.dart';
 import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:flutter_svg/svg.dart';
+
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
+
+  
 
   Future<String> getVersionInfo() async {
     PackageInfo packageInfo = await PackageInfo.fromPlatform();
@@ -19,27 +23,23 @@ class WelcomePage extends StatelessWidget {
         automaticallyImplyLeading: false,
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const SizedBox(
-            height: 50,
-          ),
-          const Padding(
-            padding: EdgeInsets.only(top: 30),
-            child: SizedBox(
-              width: 352,
-              height: 52,
+
+          SizedBox(
+              height: 400,
               child: Center(
-                child: Text(
-                  'Beatim Runner (β版)',
-                  style: TextStyle(
-                    fontSize: 32,
-                    fontWeight: FontWeight.bold,
+                child: Padding(
+                  padding: const EdgeInsets.all(40.0),
+                  child: SvgPicture.asset(
+                    'images/logo.svg',
+                    semanticsLabel: 'Shake Smartphone',
+                    width: 250,
+                    height: 250,
                   ),
                 ),
-              ),
-            ),
-          ),
+              )),
           FutureBuilder(
             future: getVersionInfo(),
             builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
@@ -54,27 +54,15 @@ class WelcomePage extends StatelessWidget {
               }
             },
           ),
-          SizedBox(
-              height: 480,
-              child: Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(40.0),
-                  child: Image.asset(
-                    'images/logo.png',
-                    width: 300,
-                    height: 300,
-                  ),
-                ),
-              )),
           Padding(
-            padding: const EdgeInsets.only(top: 10.0),
+            padding: const EdgeInsets.symmetric(vertical: 20.0,),
             child: PageTransitionButton(
               '始める',
               () {
                 Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
-                      builder: (BuildContext context) => DataCollectAgreePage(),
+                      builder: (BuildContext context) => EarphoneRecommendPage(),
                     ));
               },
             ),

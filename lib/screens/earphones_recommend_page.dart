@@ -16,7 +16,7 @@ class EarphoneRecommendPage extends BaseLayout {
   Widget mainContent(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(40.0),
+        padding: const EdgeInsets.all(20.0),
         child: SvgPicture.asset(
           'images/headphone.svg',
           semanticsLabel: 'privacy policy',

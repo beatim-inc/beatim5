@@ -260,6 +260,7 @@ class _ShakePageState extends State<ShakePage> {
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
+          toolbarHeight: 50.0, 
           actions: kDebugMode
               ? [
                   IconButton(
@@ -282,14 +283,14 @@ class _ShakePageState extends State<ShakePage> {
         ),
         body: Center(
           child: Column(
-            // mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(
-                height: 50,
+                height: 0,
               ),
               const Padding(
-                padding: EdgeInsets.only(top: 30),
+                padding: EdgeInsets.only(top: 0),
                 child: SizedBox(
                   width: 352,
                   // explanation SizedBox の Width が 83　なので 52, 135
@@ -321,16 +322,21 @@ class _ShakePageState extends State<ShakePage> {
                     ),
                   )),
               const SizedBox(
-                height: 50,
+                height: 20,
               ),
-              SvgPicture.asset(
-                'images/shake-phone.svg',
-                semanticsLabel: 'Shake Smartphone',
+              Image.asset(
+                'images/shake_and_running.gif',
                 width: 200,
                 height: 200,
               ),
+              // SvgPicture.asset(
+              //   'images/shake-phone.svg',
+              //   semanticsLabel: 'Shake Smartphone',
+              //   width: 200,
+              //   height: 200,
+              // ),
               const SizedBox(
-                height: 40,
+                height: 20,
               ),
               Text(
                 '$counter / ${_intervals.length}',

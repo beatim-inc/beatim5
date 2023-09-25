@@ -21,22 +21,26 @@ class speedMeterLogManager {
 
 
   void getSpeed()async{
-    if(speedLog.length < 1800){
-      prePosition = currentPosition;
-      currentPosition = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.best
-      );
-      runningDistance = Geolocator.distanceBetween(
-          prePosition.latitude, prePosition.longitude, currentPosition.latitude, currentPosition.longitude
-      );
-      currentSpeed = runningDistance;
-      lowpassFilteredSpeedPre = lowpassFilteredSpeed;
-      lowpassFilteredSpeed = gain*lowpassFilteredSpeedPre + (1-gain)*currentSpeed;
-      speedLog.add({"time":DateTime.now().toString(),"speed":currentSpeed,"lowpassFilteredSpeed":lowpassFilteredSpeed});
-      // print("${currentPosition.latitude},${currentPosition.longitude}");
-      // print(currentSpeed);
-    }else{
-      // print("時間が経過したため速度計測を終了しました");
+    try {
+      if(speedLog.length < 1800){
+        prePosition = currentPosition;
+        currentPosition = await Geolocator.getCurrentPosition(
+            desiredAccuracy: LocationAccuracy.best
+        );
+        runningDistance = Geolocator.distanceBetween(
+            prePosition.latitude, prePosition.longitude, currentPosition.latitude, currentPosition.longitude
+        );
+        currentSpeed = runningDistance;
+        lowpassFilteredSpeedPre = lowpassFilteredSpeed;
+        lowpassFilteredSpeed = gain*lowpassFilteredSpeedPre + (1-gain)*currentSpeed;
+        speedLog.add({"time":DateTime.now().toString(),"speed":currentSpeed,"lowpassFilteredSpeed":lowpassFilteredSpeed});
+        // print("${currentPosition.latitude},${currentPosition.longitude}");
+        // print(currentSpeed);
+      }else{
+        // print("時間が経過したため速度計測を終了しました");
+      }
+    } catch(e) {
+      print('位置情報取得時にエラーが発生しました: $e');
     }
   }
 

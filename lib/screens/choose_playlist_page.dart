@@ -41,14 +41,17 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        toolbarHeight: 0.0, // カスタムの高さを指定
       ),
       body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           const SizedBox(
-            height: 50,
+            height: 10,
           ),
           const Padding(
-            padding: EdgeInsets.only(top: 30),
+            padding: EdgeInsets.only(top: 50),
             child: SizedBox(
               width: 352,
               height: 52,
@@ -81,13 +84,13 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
           ),
           isLoadingMusicData
               ? const SizedBox(
-                  height: 400,
+                  height: 300,
                   child: Center(
                     child: CircularProgressIndicator(),
                   ),
                 )
               : SizedBox(
-                  height: 400,
+                  height: 300,
                   child: CarouselSlider.builder(
                     itemCount: musicPlaylistMetadataCollection.length,
                     itemBuilder: (context, index, realIdx) {
@@ -126,7 +129,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                       );
                     },
                     options: CarouselOptions(
-                      height: 350.0,
+                      height: 300.0,
                       initialPage: 0,
                       enlargeCenterPage: true,
                       onPageChanged: (index, reason) {
@@ -139,7 +142,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                   ),
                 ),
           Padding(
-            padding: const EdgeInsets.only(top: 10.0),
+            padding: const EdgeInsets.only(top: 20.0),
             child: SizedBox(
               height: 58,
               width: 224,

@@ -99,18 +99,24 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
+          toolbarHeight: 0.0, // カスタムの高さを指定
         ),
-        body: GestureDetector(
+        body: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+          GestureDetector(
           onTap: () {
             FocusScope.of(context).unfocus();
           },
           child: SingleChildScrollView(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const SizedBox(height: 50),
+                const SizedBox(height: 10),
                 const Padding(
-                  padding: EdgeInsets.only(top: 30),
+                  padding: EdgeInsets.only(top: 50),
                   child: SizedBox(
                     width: 352,
                     height: 52,
@@ -142,7 +148,7 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
                   ),
                 ),
                 SizedBox(
-                  height: 400,
+                  height: 300,
                   child: CarouselSlider.builder(
                     itemCount: paceItems.length,
                     itemBuilder: (context, index, realIdx) {
@@ -217,7 +223,7 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
                       );
                     },
                     options: CarouselOptions(
-                      height: 350.0,
+                      height: 300.0,
                       initialPage: 0,
                       enlargeCenterPage: true,
                       onPageChanged: (index, reason) {
@@ -236,7 +242,7 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
                   ),
                 ),
                 Padding(
-                  padding: const EdgeInsets.only(top: 10.0),
+                  padding: const EdgeInsets.only(top: 20.0),
                   child: PageTransitionButton(
                       '決定',
                       _isButtonActive
@@ -257,6 +263,7 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
               ],
             ),
           ),
+        )],
         ));
   }
 }

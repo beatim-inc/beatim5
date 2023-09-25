@@ -19,7 +19,7 @@ class PageTransitionButton extends StatelessWidget {
         Text(
           buttonlabel,
           style: const TextStyle(
-              fontSize: 24
+              fontSize: 24,
           ),
         ),
       ),

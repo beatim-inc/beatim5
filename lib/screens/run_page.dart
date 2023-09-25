@@ -129,13 +129,15 @@ class _RunPageState extends State<RunPage> {
     return Scaffold(
         appBar: AppBar(
           automaticallyImplyLeading: false,
+          toolbarHeight: 0.0, 
         ),
         body: Center(
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               const SizedBox(
-                height: 150,
+                height: 100,
               ),
               const Text(
                 '今のBPM',
@@ -162,12 +164,12 @@ class _RunPageState extends State<RunPage> {
                     );
                   }),
               const SizedBox(
-                height: 43,
+                height: 20,
               ),
               Center(
                 child: SizedBox(
                   width: 250,
-                  height: 70,
+                  height: 50,
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -224,7 +226,7 @@ class _RunPageState extends State<RunPage> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(top: 70.0),
+                padding: const EdgeInsets.only(top: 40.0),
                 child: PageTransitionButton('BPMを再設定', () {
                   player.dispose();
                   Navigator.push<void>(

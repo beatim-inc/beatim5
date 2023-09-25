@@ -14,6 +14,7 @@ class FinishRunPage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         automaticallyImplyLeading: false,
+        toolbarHeight: 0,
         leading: IconButton(
           icon: SvgPicture.asset(
             'images/home.svg',
@@ -31,14 +32,15 @@ class FinishRunPage extends StatelessWidget {
       ),
       body: Center(
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const Padding(
-              padding: EdgeInsets.only(top: 20),
+              padding: EdgeInsets.only(top: 50),
               child: SizedBox(
                 width: 352,
                 // explanation SizedBox の Width が 83　なので 52, 135
-                height: 135,
+                height: 52,
                 child: Center(
                   child: Text(
                     'お疲れ様でした！',
@@ -66,8 +68,8 @@ class FinishRunPage extends StatelessWidget {
                 ),
               )
             ),
-            SizedBox(height: 300, child:Padding(
-              padding: const EdgeInsets.all(30.0),
+            SizedBox(height: 250, child:Padding(
+              padding: const EdgeInsets.all(20.0),
               child: SvgPicture.asset(
                 'images/thumbs-up.svg',
                 semanticsLabel: 'Shake Smartphone',
