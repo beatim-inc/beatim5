@@ -83,7 +83,7 @@ class FinishRunPage extends StatelessWidget {
                     '回答する',
                         () {
                       getOrGenerateUserId().then((userId) {
-                        final url = Uri.parse('https://docs.google.com/forms/d/e/1FAIpQLScvgQVnoyl9ko-K-U7SDx2eN7Pi_HQaDypuy10stb3TqpRCig/viewform?usp=pp_url&entry.530414108=$userId');
+                        final url = Uri.parse('https://docs.google.com/forms/d/e/1FAIpQLSc_VJeKdfYaw5iv9YAtN1wGvlKIJ-gsK2dVxdWFZ79uWZKqEQ/viewform?usp=pp_url&entry.463778612=$userId');
                         launchUrl(url);
                       });
                     },
