@@ -115,6 +115,11 @@ class _RunPageState extends State<RunPage> {
               speedMessage = 'ペースいい感じ！';
             });
           }
+        }else{
+          adjustSpeed();
+          setState(() {
+            speedMessage = '止まっています';
+          });
         }
       });
     });
