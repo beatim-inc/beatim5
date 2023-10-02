@@ -3,6 +3,7 @@ import 'package:beatim5/widgets/page_transition_button.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geolocator/geolocator.dart';
 
 
 class WelcomePage extends StatelessWidget {
@@ -58,7 +59,8 @@ class WelcomePage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 20.0,),
             child: PageTransitionButton(
               '始める',
-              () {
+              () async{
+                await Geolocator.requestPermission();
                 Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
