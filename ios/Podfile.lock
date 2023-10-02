@@ -890,7 +890,7 @@ SPEC CHECKSUMS:
   leveldb-library: f03246171cce0484482ec291f88b6d563699ee06
   nanopb: b552cce312b6c8484180ef47159bc0f65a1f0431
   package_info_plus: fd030dabf36271f146f1f3beacd48f564b0f17f7
-  path_provider_foundation: 29f094ae23ebbca9d3d0cec13889cd9060c0e943
+  path_provider_foundation: c0d39e12243d489de19b4cb2bfc5a6ae34d303c2
   PromisesObjC: c50d2056b5253dadbd6c2bea79b0674bd5a52fa4
   sensors: 84eb7a30e47a649e4172b71d6e81be614c280336
   sensors_plus: bda64198ccc7d3ccbb49e6ae17d92f67687bee20
