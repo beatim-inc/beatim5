@@ -56,7 +56,7 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
   final TextEditingController _customPaceController = TextEditingController();
 
   List<double> customMinuteChoice = [1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0];
-  List<double> customSecondChoice= [0.0,10.0,20.0,30.0,40.0,50.0];
+  List<double> customSecondChoice= [0.0,5.0,10.0,15.0,20.0,25.0,30.0,35.0,40.0,45.0,50.0,55.0];
 
   @override
   void initState() {
@@ -204,7 +204,19 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
                                         children: [
                                           DropdownButton(
                                             items: List.generate(customMinuteChoice.length,
-                                                    (index) => DropdownMenuItem(child: Text('${customMinuteChoice[index].toInt()}'),value: customMinuteChoice[index])),
+                                                    (index) => DropdownMenuItem(
+                                                        value: customMinuteChoice[index],
+                                                        child: Padding(
+                                                          padding: const EdgeInsets.all(8.0),
+                                                          child: Text(
+                                                              '${customMinuteChoice[index].toInt()}',
+                                                              style: const TextStyle(
+                                                                fontSize:20,
+                                                              ),
+                                                          ),
+                                                        )
+                                                    )
+                                            ),
                                             value: paceItem.movePace,
                                             onChanged: (double? value){
                                               setState(() {
@@ -217,7 +229,19 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
                                            Text('分'),
                                            DropdownButton(
                                              items: List.generate(customSecondChoice.length,
-                                                     (index) => DropdownMenuItem(child: Text('${customSecondChoice[index].toInt()}'),value: customSecondChoice[index])),
+                                                     (index) => DropdownMenuItem(
+                                                         value: customSecondChoice[index],
+                                                         child:Padding(
+                                                           padding: const EdgeInsets.all(8.0),
+                                                           child: Text(
+                                                              '${customSecondChoice[index].toInt()}',
+                                                              style: const TextStyle(
+                                                                fontSize:20,
+                                                              ),
+                                                            ),
+                                                         ),
+                                                     ),
+                                             ),
                                              value: paceItem.movePaceSec,
                                              onChanged: (double? value){
                                                setState(() {
