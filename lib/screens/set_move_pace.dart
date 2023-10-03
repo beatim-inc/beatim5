@@ -17,38 +17,46 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
         'ウォーキング',
         'このペースは日常の散歩やリラックスしたウォーキングに最適です。健康の維持やリフレッシュのために適しています。',
         12.0,
+        0.0,
         Colors.white,
         false),
     MovePaceSuggestionItem(
         '早歩き',
         'このペースはやや速めの歩きで、日常の移動や軽い運動として適しています。カロリー消費も増え、健康促進に役立ちます。',
         10.0,
+        0.0,
         Colors.white,
         false),
     MovePaceSuggestionItem(
         '初級ランニング',
         'ランニング初心者や久しぶりの方に適したペースです。持続的な運動効果を求める方におすすめです。',
         8.0,
+        0.0,
         Colors.white,
         false),
     MovePaceSuggestionItem(
         '中級ランニング',
         'ある程度のランニング経験者や練習を積んでいる方に適したペースです。心肺機能の向上や筋力アップに効果的です。',
         6.0,
+        0.0,
         Colors.white,
         false),
     MovePaceSuggestionItem(
         '上級ランニング',
         'ランニング経験豊富で、高い運動能力を持つ方向けのペースです。競技や記録更新を目指す方に適しています。',
         4.0,
+        0.0,
         Colors.white,
         false),
     MovePaceSuggestionItem('カスタムペース', 'ご自身に適したペースを把握されている場合は、こちらから設定できます。',
-        null, Colors.white, true),
+        5.0,0.0, Colors.white, true),
   ];
 
   int _currentIndex = 0;
   final TextEditingController _customPaceController = TextEditingController();
+
+  List<double> customMinuteChoice = [1.0,2.0,3.0,4.0,5.0,6.0,7.0,8.0,9.0,10.0];
+  List<double> customSecondChoice= [0.0,10.0,20.0,30.0,40.0,50.0];
 
   @override
   void initState() {
@@ -192,26 +200,36 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
                                   children: [
                                     Padding(
                                       padding: const EdgeInsets.only(top: 1.0),
-                                      child: TextField(
-                                        controller: _customPaceController,
-                                        keyboardType: const TextInputType
-                                            .numberWithOptions(decimal: true),
-                                        onChanged: (value) {
-                                          final double? newValue =
-                                              double.tryParse(value);
-                                          if (newValue != null) {
-                                            setState(() {
-                                              paceItem.movePace = newValue;
-                                            });
-                                          }
-                                        },
-                                        decoration: InputDecoration(
-                                          hintText: 'ペースを入力',
-                                          border: const OutlineInputBorder(),
-                                          errorText: _inputErrorText,
-                                          suffixText: '分/km',
-                                        ),
-                                      ),
+                                      child: Row(
+                                        children: [
+                                          DropdownButton(
+                                            items: List.generate(customMinuteChoice.length,
+                                                    (index) => DropdownMenuItem(child: Text('${customMinuteChoice[index].toInt()}'),value: customMinuteChoice[index])),
+                                            value: paceItem.movePace,
+                                            onChanged: (double? value){
+                                              setState(() {
+                                                if(value != null){
+                                                  paceItem.movePace= value;
+                                                }
+                                              });
+                                            },
+                                          ),
+                                           Text('分'),
+                                           DropdownButton(
+                                             items: List.generate(customSecondChoice.length,
+                                                     (index) => DropdownMenuItem(child: Text('${customSecondChoice[index].toInt()}'),value: customSecondChoice[index])),
+                                             value: paceItem.movePaceSec,
+                                             onChanged: (double? value){
+                                               setState(() {
+                                                 if(value != null){
+                                                   paceItem.movePaceSec= value;
+                                                 }
+                                               });
+                                             },
+                                           ),
+                                           Text('秒')
+                                        ],
+                                      )
                                     ),
                                     const SizedBox(height: 8.0),
                                     // これはテキストフィールドと説明文の間のスペースです
@@ -231,7 +249,7 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
                           _currentIndex = index;
 
                           if (paceItems[index].isEditableMovePace) {
-                            _validateInput();
+                            _isButtonActive = true;
                           } else {
                             _isButtonActive = true;
                           }
@@ -248,8 +266,7 @@ class _SetMovePacePageState extends State<SetMovePacePage> {
                       _isButtonActive
                           ? () {
                               final selectedPace = paceItems[_currentIndex];
-                              saveMovePaceToPreferences(selectedPace.movePace!);
-
+                              saveMovePaceToPreferences(selectedPace.movePace! + selectedPace.movePaceSec!/60);
                               Navigator.push<void>(
                                 context,
                                 MaterialPageRoute<void>(
@@ -272,9 +289,10 @@ class MovePaceSuggestionItem {
   final String title;
   final String description;
   double? movePace;
+  double? movePaceSec;
   final Color itemColor;
   final bool isEditableMovePace;
 
-  MovePaceSuggestionItem(this.title, this.description, this.movePace,
+  MovePaceSuggestionItem(this.title, this.description, this.movePace,this.movePaceSec,
       this.itemColor, this.isEditableMovePace);
 }
