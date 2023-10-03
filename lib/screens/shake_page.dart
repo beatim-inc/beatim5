@@ -297,7 +297,7 @@ class _ShakePageState extends State<ShakePage> {
                   height: 52,
                   child: Center(
                     child: Text(
-                      "さあ走りましょう！",
+                      "走りましょう！",
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -313,7 +313,7 @@ class _ShakePageState extends State<ShakePage> {
                     height: 120,
                     child: Center(
                       child: Text(
-                        "スマホを手に持ち、自分のペースに合わせて腕を振りましょう！音楽は自動で再生され、再生後はスマホを手に持つ必要はありません。",
+                        "スマホを手に持ち、腕を振って走りましょう！音楽が自動で再生されます。",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
@@ -342,17 +342,34 @@ class _ShakePageState extends State<ShakePage> {
                 '$counter / ${_intervals.length}',
                 style: Theme.of(context).textTheme.headlineLarge,
               ),
-              const SizedBox(
-                height: 35,
-              ),
-              PageTransitionButton(
-                '腕振りガイド',
-                () {
-                  final url = Uri.parse(
-                      'https://www.beatim.co.jp/posts/2023-09-20-19-00/');
-                  launchUrl(url);
-                },
-              ),
+              // const SizedBox(
+              //   height: 5,
+              // ),
+              Padding(
+                padding: const EdgeInsets.only(top: 20.0),
+                child: SizedBox(
+                  height: 58,
+                  width: 224,
+                  child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(),
+                      onPressed: () {
+                        final url = Uri.parse(
+                            'https://www.beatim.co.jp/posts/2023-09-20-19-00/');
+                        launchUrl(url);
+                      },
+                      child: const Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'もっと詳しく',
+                            style: TextStyle(fontSize: 17),
+                          ),
+                          Icon(Icons.arrow_outward), //アイコン
+                        ],
+                      )
+                    ),
+                ),
+              )
             ],
           ),
         ));

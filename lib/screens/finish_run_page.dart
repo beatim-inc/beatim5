@@ -59,7 +59,7 @@ class FinishRunPage extends StatelessWidget {
                 height: 83,
                 child: Center(
                   child: Text(
-                    'テンポは合っていましたか？改善に向けたアンケートへのご協力もよろしくお願いします！',
+                    'アンケートへのご協力をよろしくお願いします！',
                     style: TextStyle(
                       fontSize: 17,
                       fontWeight: FontWeight.bold,

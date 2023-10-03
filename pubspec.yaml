@@ -60,6 +60,7 @@ dependencies:
   json_annotation: ^4.8.1
   url_launcher: ^6.1.14
   package_info_plus: ^4.1.0
+  flutter_screen_scaler: ^2.1.0
 
 dev_dependencies:
   flutter_test:

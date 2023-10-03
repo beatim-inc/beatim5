@@ -9,7 +9,7 @@ import 'package:flutter_svg/svg.dart';
 class EarphoneRecommendPage extends BaseLayout {
   @override
   String get title => 'イヤホンについて';
-  String get explanation => '本アプリでは音楽を聴きます。体験価値の向上のためにイヤホンやヘッドホンの着用をお願いします。';
+  String get explanation => '音楽を聴くためイヤホンなどの着用をお願いします。';
 
 
   @override

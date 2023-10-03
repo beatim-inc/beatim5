@@ -57,7 +57,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
               height: 52,
               child: Center(
                 child: Text(
-                  '再生する楽曲の選択',
+                  '楽曲の選択',
                   style: TextStyle(
                     fontSize: 32,
                     fontWeight: FontWeight.bold,
@@ -146,7 +146,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
             child: SizedBox(
               height: 58,
               width: 224,
-              child: ElevatedButton(
+              child: ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(),
                   onPressed: () async {
                     generateMusicPlaylist(musicPlaylistMetadataCollection,
@@ -159,10 +159,12 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
                       ),
                     );
                   },
-                  child: const Text(
+                  icon: Icon(Icons.download), //アイコン
+                  label: const Text(
                     'ダウンロード',
-                    style: TextStyle(fontSize: 24),
-                  )),
+                    style: TextStyle(fontSize: 17),
+                  )
+                ),
             ),
           )
         ],

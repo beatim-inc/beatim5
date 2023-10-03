@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screen_scaler/flutter_screen_scaler.dart';
 
 class PageTransitionButton extends StatelessWidget {
 
@@ -9,6 +10,7 @@ class PageTransitionButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scaler = ScreenScaler()..init(context);
     return SizedBox(
       width: 224,
       height: 58,
@@ -18,8 +20,8 @@ class PageTransitionButton extends StatelessWidget {
         child:
         Text(
           buttonlabel,
-          style: const TextStyle(
-              fontSize: 24,
+          style: TextStyle(
+              fontSize: scaler.getTextSize(15),
           ),
         ),
       ),
