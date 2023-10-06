@@ -39,7 +39,6 @@ dependencies:
   sensors_plus: ^3.0.2
 
   just_audio: ^0.9.34
-  audio_service: ^0.18.0
 
   uuid: ^3.0.7
   path_provider: ^2.1.1
