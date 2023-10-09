@@ -113,7 +113,7 @@ class _ShakePageState extends State<ShakePage> {
   }
 
   Duration calcDurationFromIntervals(List<int> intervals, int counter){
-    if(counter == 0){
+    if(counter <= 2){
       return Duration(milliseconds: 0);
     }else if(intervals[counter] < intervals[counter-1]){
       return Duration(milliseconds: (intervals[counter-1]-intervals[counter])~/2);
