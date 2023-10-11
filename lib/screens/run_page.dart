@@ -33,6 +33,8 @@ class _RunPageState extends State<RunPage> {
   double changeSpeedHurdle = 0.1;
   double changeHighSpeedHurdle = 0.2;
 
+  bool isPaceControllActive = true;
+
   _initializeGoalSpeed() async {
     goalSpeed = await getGoalSpeed();
     setState(() {});
@@ -81,46 +83,53 @@ class _RunPageState extends State<RunPage> {
     });
     Timer.periodic(const Duration(seconds: 10), (timer) {
       setState(() {
-        if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! > 0.5){
-          if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! <
-              goalSpeed! - changeHighSpeedHurdle) {
-            playbackBpm += 3;
+        if(isPaceControllActive){
+          if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! > 0.5){
+            if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! <
+                goalSpeed! - changeHighSpeedHurdle) {
+              playbackBpm += 3;
+              adjustSpeed();
+              setState(() {
+                speedMessage = 'ペースを速くしています！';
+              });
+            } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! <
+                goalSpeed! - changeSpeedHurdle) {
+              playbackBpm += 1;
+              adjustSpeed();
+              setState(() {
+                speedMessage = 'ペースをちょっと速くしています！';
+              });
+            } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! >
+                goalSpeed! + changeSpeedHurdle) {
+              playbackBpm -= 1;
+              adjustSpeed();
+              setState(() {
+                speedMessage = 'ペースをちょっと遅くしています！';
+              });
+            } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! >
+                goalSpeed! + changeHighSpeedHurdle) {
+              playbackBpm -= 3;
+              adjustSpeed();
+              setState(() {
+                speedMessage = 'ペースを遅くしています！';
+              });
+            } else {
+              setState(() {
+                speedMessage = 'ペースいい感じ！';
+              });
+            }
+          }else{
             adjustSpeed();
             setState(() {
-              speedMessage = 'ペースを速くしています！';
-            });
-          } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! <
-              goalSpeed! - changeSpeedHurdle) {
-            playbackBpm += 1;
-            adjustSpeed();
-            setState(() {
-              speedMessage = 'ペースをちょっと速くしています！';
-            });
-          } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! >
-              goalSpeed! + changeSpeedHurdle) {
-            playbackBpm -= 1;
-            adjustSpeed();
-            setState(() {
-              speedMessage = 'ペースをちょっと遅くしています！';
-            });
-          } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! >
-              goalSpeed! + changeHighSpeedHurdle) {
-            playbackBpm -= 3;
-            adjustSpeed();
-            setState(() {
-              speedMessage = 'ペースを遅くしています！';
-            });
-          } else {
-            setState(() {
-              speedMessage = 'ペースいい感じ！';
+              speedMessage = '止まっています';
             });
           }
         }else{
-          adjustSpeed();
           setState(() {
-            speedMessage = '止まっています';
+            speedMessage = 'BPM自動調整機能がOFFです';
           });
         }
+
       });
     });
   }
@@ -230,6 +239,24 @@ class _RunPageState extends State<RunPage> {
                       )
                     ],
                   ),
+                ),
+              ),
+              Padding(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('BPM自動調整機能'),
+                    Switch(
+                        value: isPaceControllActive,
+                        onChanged: (value){
+                          setState(() {
+                            isPaceControllActive != isPaceControllActive;
+                            isPaceControllActive = value;
+                          });
+                        }
+                    )
+                  ],
                 ),
               ),
               Padding(
