@@ -1,6 +1,4 @@
-import 'package:beatim5/screens/welcome_page.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 abstract class BaseLayout extends StatelessWidget {
   // それぞれの継承クラスが上書きするべきメソッド

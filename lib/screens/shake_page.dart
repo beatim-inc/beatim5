@@ -112,6 +112,17 @@ class _ShakePageState extends State<ShakePage> {
     super.dispose();
   }
 
+  Duration calcDurationFromIntervals(List<int> intervals, int counter){
+    if(counter <= 2){
+      return Duration(milliseconds: 0);
+    }else if(intervals[counter] < intervals[counter-1]){
+      return Duration(milliseconds: (intervals[counter-1]-intervals[counter])~/2);
+    }else{
+      return Duration(milliseconds: 0);
+    }
+
+  }
+
   void getStep() {
     """
     1. 角速度の取得
@@ -170,16 +181,18 @@ class _ShakePageState extends State<ShakePage> {
         gyroFiltered[0] < gyroFiltered[1] &&
         directionChange > 1.41421356 &&
         nowTime - preStepTime > intervalMin) {
+
+      // ステップ間隔を記録
+      _intervals[counter] = nowTime - preStepTime;
+      preStepTime = nowTime;
+
       // スマホにクリック感を出す
-      HapticFeedback.heavyImpact();
+      Timer(calcDurationFromIntervals(_intervals,counter),(){HapticFeedback.heavyImpact();});
 
       // 正規化した角速度ベクトルを更新
       for (int i = 0; i < 3; i++) {
         preGyroNormalized[i] = gyroNormalized[i];
       }
-      // ステップ間隔を記録
-      _intervals[counter] = nowTime - preStepTime;
-      preStepTime = nowTime;
 
       // ステップタイミングフラグを更新
       isStepTime = true;
