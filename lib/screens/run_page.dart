@@ -151,6 +151,10 @@ class _RunPageState extends State<RunPage> {
                 speedMessage,
                 style: const TextStyle(fontSize: 20),
               ),
+              Text(
+                "平均ストライド:${((speedMeterLog?.currentSpeed ?? 0) / (playbackBpm/60)).toStringAsFixed(1)}m",
+                style: const TextStyle(fontSize: 20)
+              ),
               StreamBuilder(
                   stream: player.currentIndexStream,
                   builder:
