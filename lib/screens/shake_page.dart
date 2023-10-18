@@ -187,7 +187,7 @@ class _ShakePageState extends State<ShakePage> {
       preStepTime = nowTime;
 
       // スマホにクリック感を出す
-      Timer(calcDurationFromIntervals(_intervals,counter),(){HapticFeedback.heavyImpact();});
+      //Timer(calcDurationFromIntervals(_intervals,counter),(){HapticFeedback.heavyImpact();});
 
       // 正規化した角速度ベクトルを更新
       for (int i = 0; i < 3; i++) {
