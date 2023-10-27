@@ -31,7 +31,7 @@ class _RunPageState extends State<RunPage> {
   double? goalSpeed;
 
   double changeSpeedHurdle = 0.1;
-  double changeHighSpeedHurdle = 0.2;
+  double changeHighSpeedHurdle = 0.3;
 
   bool isPaceControllActive = true;
 
