@@ -27,19 +27,16 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app needs access to location when open in order to measure user&apos;s running speed.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs access to location when in the background in order to measure user&apos;s running speed.</string>
+	<string>このアプリでは移動ペースを測定するために位置情報を使用します．</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to location when open in order to measure user&apos;s running speed.</string>
+	<string>このアプリでは移動ペースを測定するために位置情報を使用します．</string>
 	<key>NSMicrophoneUsageDescription</key>
-	<string>This app needs access to microphone to play musics.</string>
+	<string>このアプリでは音楽を使用するためマイクロフォンを使用します．</string>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>audio</string>
-		<string>location</string>
 	</array>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
