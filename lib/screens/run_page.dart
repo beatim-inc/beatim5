@@ -260,7 +260,7 @@ class _RunPageState extends State<RunPage> {
                 padding: const EdgeInsets.only(top: 10.0),
                 child: PageTransitionButton('ランニング終了', () {
                   player.dispose();
-                  speedMeterLog?.sendSpeedLog();
+                  //speedMeterLog?.sendSpeedLog();
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(

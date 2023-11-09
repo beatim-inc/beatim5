@@ -36,7 +36,7 @@ class _ShakePageState extends State<ShakePage> {
   List<double> gyroFiltered = [0, 0, 0];
   List<double> preGyroNormalized = [0, 0, 1]; // 正規化した角速度ベクトル. ステップ取得時に更新
   double hurdolRadpersec = 2.5;
-  final List<int> _intervals = List.filled(12, 0); //検知するステップ数
+  final List<int> _intervals = List.filled(14, 0); //検知するステップ数
   int preStepTime = 0,
       intervalMin = 200,
       intervalMax = 750,
@@ -187,7 +187,7 @@ class _ShakePageState extends State<ShakePage> {
       preStepTime = nowTime;
 
       // スマホにクリック感を出す
-      Timer(calcDurationFromIntervals(_intervals,counter),(){HapticFeedback.heavyImpact();});
+      //Timer(calcDurationFromIntervals(_intervals,counter),(){HapticFeedback.heavyImpact();});
 
       // 正規化した角速度ベクトルを更新
       for (int i = 0; i < 3; i++) {
@@ -310,7 +310,7 @@ class _ShakePageState extends State<ShakePage> {
                   height: 52,
                   child: Center(
                     child: Text(
-                      "さあ走りましょう！",
+                      "計測中...",
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,

@@ -148,7 +148,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
               child: ElevatedButton(
                   style: ElevatedButton.styleFrom(),
                   onPressed: () async {
-                    generateMusicPlaylist(musicPlaylistMetadataCollection,
+                    await generateMusicPlaylist(musicPlaylistMetadataCollection,
                         musicMetadataCollection, currentCarouselIndex);
 
                     Navigator.push<void>(
