@@ -36,7 +36,7 @@ class _ShakePageState extends State<ShakePage> {
   List<double> gyroFiltered = [0, 0, 0];
   List<double> preGyroNormalized = [0, 0, 1]; // 正規化した角速度ベクトル. ステップ取得時に更新
   double hurdolRadpersec = 2.5;
-  final List<int> _intervals = List.filled(24, 0);
+  final List<int> _intervals = List.filled(14, 0); //検知するステップ数
   int preStepTime = 0,
       intervalMin = 200,
       intervalMax = 750,
@@ -202,9 +202,9 @@ class _ShakePageState extends State<ShakePage> {
 
       // カウンターが溜まったらBPMを修正する
       if (counter == _intervals.length) {
-        playbackBpm = calcBpmFromIntervals(_intervals.skip(8).toList());
+        playbackBpm = calcBpmFromIntervals(_intervals.skip(4).toList()); //最初の4ステップのデータは外す
 
-        shakeLog.writeLogToFirebaseAsJson();
+        //shakeLog.writeLogToFirebaseAsJson();
 
         Navigator.push(
           context,
@@ -221,7 +221,7 @@ class _ShakePageState extends State<ShakePage> {
     }
 
     // ステップ検出に使用したデータを送信
-    logTimeSeriesDatas();
+    //logTimeSeriesDatas();
   }
 
   double calcBpmFromIntervals(List<int> intervals) {
@@ -310,7 +310,7 @@ class _ShakePageState extends State<ShakePage> {
                   height: 52,
                   child: Center(
                     child: Text(
-                      "さあ走りましょう！",
+                      "計測中...",
                       style: TextStyle(
                         fontSize: 32,
                         fontWeight: FontWeight.bold,
@@ -326,7 +326,7 @@ class _ShakePageState extends State<ShakePage> {
                     height: 120,
                     child: Center(
                       child: Text(
-                        "スマホを手に持ち、自分のペースに合わせて腕を振りましょう！音楽は自動で再生され、再生後はスマホを手に持つ必要はありません。",
+                        "スマホを手に持ち、自分のペースに合わせて走りましょう！",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
@@ -351,10 +351,10 @@ class _ShakePageState extends State<ShakePage> {
               const SizedBox(
                 height: 20,
               ),
-              Text(
-                '$counter / ${_intervals.length}',
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
+              //Text(
+              //  '$counter / ${_intervals.length}',
+              //  style: Theme.of(context).textTheme.headlineLarge,
+              //),
               const SizedBox(
                 height: 35,
               ),
