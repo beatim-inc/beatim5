@@ -204,7 +204,7 @@ class _ShakePageState extends State<ShakePage> {
       if (counter == _intervals.length) {
         playbackBpm = calcBpmFromIntervals(_intervals.skip(4).toList()); //最初の4ステップのデータは外す
 
-        shakeLog.writeLogToFirebaseAsJson();
+        //shakeLog.writeLogToFirebaseAsJson();
 
         Navigator.push(
           context,
