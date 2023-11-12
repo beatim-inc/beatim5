@@ -304,19 +304,33 @@ class _ShakePageState extends State<ShakePage> {
               const SizedBox(
                 height: 0,
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 0),
                 child: SizedBox(
                   width: 352,
                   // explanation SizedBox の Width が 83　なので 52, 135
                   height: 52,
                   child: Center(
-                    child: Text(
-                      "計測中...",
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "計測中...",
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed:(){
+                            final url = Uri.parse('https://www.beatim.co.jp/posts/2023-09-20-19-00/');
+                            launchUrl(url);
+                          },
+                          icon: Icon(Icons.help_outline),
+                          iconSize: 25,
+                          color: Colors.orange,
+                        )
+                      ],
                     ),
                   ),
                 ),
@@ -359,14 +373,6 @@ class _ShakePageState extends State<ShakePage> {
               //),
               const SizedBox(
                 height: 35,
-              ),
-              PageTransitionButton(
-                '腕振りガイド',
-                () {
-                  final url = Uri.parse(
-                      'https://www.beatim.co.jp/posts/2023-09-20-19-00/');
-                  launchUrl(url);
-                },
               ),
             ],
           ),
