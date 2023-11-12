@@ -1,6 +1,7 @@
 import 'package:beatim5/models/music_metadata.dart';
 import 'package:beatim5/models/music_playlist_metadata.dart';
 import 'package:beatim5/providers/musicfile_path.dart';
+import 'package:beatim5/screens/prepare_run_page.dart';
 import 'package:beatim5/screens/shake_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -31,7 +32,7 @@ class _ChoosePlaylistPageState extends State<ChoosePlaylistPage> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => const ShakePage(),
+        builder: (context) => PrepareRunPage(),
       ),
     );
   }
