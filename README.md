@@ -2,8 +2,6 @@
 
 ## おまじない
 
-パッケージを導入していることが多々あるので、他人のコードをしたらやろう！
-
 ```shell
 flutter pub get
 
@@ -18,6 +16,10 @@ flutter run
 
 とりあえず`flutter clean`を実行しおまじないコマンド
 
+### profile問題
+
+- Bundle Identifier を `beatim5.com.beatim5` に設定する
+
 ## Document
 
 ### movePace, speed に関して
@@ -28,4 +30,3 @@ flutter run
 
 movePaceとspeedの関係
  - movePace * speed = 1000/60
-

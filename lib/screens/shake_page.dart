@@ -36,7 +36,7 @@ class _ShakePageState extends State<ShakePage> {
   List<double> gyroFiltered = [0, 0, 0];
   List<double> preGyroNormalized = [0, 0, 1]; // 正規化した角速度ベクトル. ステップ取得時に更新
   double hurdolRadpersec = 2.5;
-  final List<int> _intervals = List.filled(24, 0);
+  final List<int> _intervals = List.filled(14, 0); //検知するステップ数
   int preStepTime = 0,
       intervalMin = 200,
       intervalMax = 750,
@@ -112,6 +112,17 @@ class _ShakePageState extends State<ShakePage> {
     super.dispose();
   }
 
+  Duration calcDurationFromIntervals(List<int> intervals, int counter){
+    if(counter <= 2){
+      return Duration(milliseconds: 0);
+    }else if(intervals[counter] < intervals[counter-1]){
+      return Duration(milliseconds: (intervals[counter-1]-intervals[counter])~/2);
+    }else{
+      return Duration(milliseconds: 0);
+    }
+
+  }
+
   void getStep() {
     """
     1. 角速度の取得
@@ -170,16 +181,20 @@ class _ShakePageState extends State<ShakePage> {
         gyroFiltered[0] < gyroFiltered[1] &&
         directionChange > 1.41421356 &&
         nowTime - preStepTime > intervalMin) {
+
+      // ステップ間隔を記録
+      _intervals[counter] = nowTime - preStepTime;
+      preStepTime = nowTime;
+
       // スマホにクリック感を出す
-      HapticFeedback.heavyImpact();
+      if(counter % 2 == 0){
+        HapticFeedback.heavyImpact();
+      }
 
       // 正規化した角速度ベクトルを更新
       for (int i = 0; i < 3; i++) {
         preGyroNormalized[i] = gyroNormalized[i];
       }
-      // ステップ間隔を記録
-      _intervals[counter] = nowTime - preStepTime;
-      preStepTime = nowTime;
 
       // ステップタイミングフラグを更新
       isStepTime = true;
@@ -189,9 +204,9 @@ class _ShakePageState extends State<ShakePage> {
 
       // カウンターが溜まったらBPMを修正する
       if (counter == _intervals.length) {
-        playbackBpm = calcBpmFromIntervals(_intervals.skip(8).toList());
+        playbackBpm = calcBpmFromIntervals(_intervals.skip(4).toList()); //最初の4ステップのデータは外す
 
-        shakeLog.writeLogToFirebaseAsJson();
+        //shakeLog.writeLogToFirebaseAsJson();
 
         Navigator.push(
           context,
@@ -208,7 +223,7 @@ class _ShakePageState extends State<ShakePage> {
     }
 
     // ステップ検出に使用したデータを送信
-    logTimeSeriesDatas();
+    //logTimeSeriesDatas();
   }
 
   double calcBpmFromIntervals(List<int> intervals) {
@@ -289,19 +304,33 @@ class _ShakePageState extends State<ShakePage> {
               const SizedBox(
                 height: 0,
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 0),
                 child: SizedBox(
                   width: 352,
                   // explanation SizedBox の Width が 83　なので 52, 135
                   height: 52,
                   child: Center(
-                    child: Text(
-                      "さあ走りましょう！",
-                      style: TextStyle(
-                        fontSize: 32,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          "計測中...",
+                          style: TextStyle(
+                            fontSize: 32,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed:(){
+                            final url = Uri.parse('https://www.beatim.co.jp/posts/2023-09-20-19-00/');
+                            launchUrl(url);
+                          },
+                          icon: Icon(Icons.help_outline),
+                          iconSize: 25,
+                          color: Colors.orange,
+                        )
+                      ],
                     ),
                   ),
                 ),
@@ -313,7 +342,7 @@ class _ShakePageState extends State<ShakePage> {
                     height: 120,
                     child: Center(
                       child: Text(
-                        "スマホを手に持ち、自分のペースに合わせて腕を振りましょう！音楽は自動で再生され、再生後はスマホを手に持つ必要はありません。",
+                        "スマホを手に持ち、自分のペースに合わせて走りましょう！",
                         style: TextStyle(
                           fontSize: 17,
                           fontWeight: FontWeight.bold,
@@ -338,20 +367,12 @@ class _ShakePageState extends State<ShakePage> {
               const SizedBox(
                 height: 20,
               ),
-              Text(
-                '$counter / ${_intervals.length}',
-                style: Theme.of(context).textTheme.headlineLarge,
-              ),
+              //Text(
+              //  '$counter / ${_intervals.length}',
+              //  style: Theme.of(context).textTheme.headlineLarge,
+              //),
               const SizedBox(
                 height: 35,
-              ),
-              PageTransitionButton(
-                '腕振りガイド',
-                () {
-                  final url = Uri.parse(
-                      'https://www.beatim.co.jp/posts/2023-09-20-19-00/');
-                  launchUrl(url);
-                },
               ),
             ],
           ),

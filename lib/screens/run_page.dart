@@ -31,7 +31,9 @@ class _RunPageState extends State<RunPage> {
   double? goalSpeed;
 
   double changeSpeedHurdle = 0.1;
-  double changeHighSpeedHurdle = 0.2;
+  double changeHighSpeedHurdle = 0.3;
+
+  bool isPaceControllActive = true;
 
   _initializeGoalSpeed() async {
     goalSpeed = await getGoalSpeed();
@@ -81,46 +83,34 @@ class _RunPageState extends State<RunPage> {
     });
     Timer.periodic(const Duration(seconds: 10), (timer) {
       setState(() {
-        if((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! > 0.5){
-          if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! <
-              goalSpeed! - changeHighSpeedHurdle) {
-            playbackBpm += 3;
-            adjustSpeed();
-            setState(() {
-              speedMessage = 'ペースを速くしています！';
-            });
-          } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! <
-              goalSpeed! - changeSpeedHurdle) {
+        if(isPaceControllActive){
+          if(((goalSpeed! -changeHighSpeedHurdle) < (speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)!)
+          && ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < (goalSpeed! - changeSpeedHurdle))
+          ){
             playbackBpm += 1;
             adjustSpeed();
             setState(() {
               speedMessage = 'ペースをちょっと速くしています！';
             });
-          } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! >
-              goalSpeed! + changeSpeedHurdle) {
+          }else if(((goalSpeed! -changeSpeedHurdle) < (speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)!)
+          && ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < (goalSpeed! - changeHighSpeedHurdle))){
             playbackBpm -= 1;
             adjustSpeed();
             setState(() {
               speedMessage = 'ペースをちょっと遅くしています！';
             });
-          } else if ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! >
-              goalSpeed! + changeHighSpeedHurdle) {
-            playbackBpm -= 3;
+          } else{
             adjustSpeed();
             setState(() {
-              speedMessage = 'ペースを遅くしています！';
-            });
-          } else {
-            setState(() {
-              speedMessage = 'ペースいい感じ！';
+              speedMessage = 'ペースいい感じ!';
             });
           }
         }else{
-          adjustSpeed();
           setState(() {
-            speedMessage = '止まっています';
+            speedMessage = 'BPM自動調整機能がOFFです';
           });
         }
+
       });
     });
   }
@@ -160,6 +150,10 @@ class _RunPageState extends State<RunPage> {
               Text(
                 speedMessage,
                 style: const TextStyle(fontSize: 20),
+              ),
+              Text(
+                "平均ストライド:${((speedMeterLog?.currentSpeed ?? 0) / (playbackBpm/60)).toStringAsFixed(1)}m",
+                style: const TextStyle(fontSize: 20)
               ),
               StreamBuilder(
                   stream: player.currentIndexStream,
@@ -233,6 +227,24 @@ class _RunPageState extends State<RunPage> {
                 ),
               ),
               Padding(
+                padding: EdgeInsets.all(20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text('BPM自動調整機能'),
+                    Switch(
+                        value: isPaceControllActive,
+                        onChanged: (value){
+                          setState(() {
+                            isPaceControllActive != isPaceControllActive;
+                            isPaceControllActive = value;
+                          });
+                        }
+                    )
+                  ],
+                ),
+              ),
+              Padding(
                 padding: const EdgeInsets.only(top: 40.0),
                 child: PageTransitionButton('BPMを再設定', () {
                   player.dispose();
@@ -248,7 +260,7 @@ class _RunPageState extends State<RunPage> {
                 padding: const EdgeInsets.only(top: 10.0),
                 child: PageTransitionButton('ランニング終了', () {
                   player.dispose();
-                  speedMeterLog?.sendSpeedLog();
+                  //speedMeterLog?.sendSpeedLog();
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
