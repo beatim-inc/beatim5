@@ -92,7 +92,7 @@ class _RunPageState extends State<RunPage> {
           if(((goalSpeed! -changeHighSpeedHurdle) < (speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)!)
           && ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < (goalSpeed! - changeSpeedHurdle))
           ){
-            playbackBpm += 1;
+            //playbackBpm += 1;
             drumPlayer.setVolume(0.0);
             adjustSpeed();
             setState(() {
@@ -100,14 +100,14 @@ class _RunPageState extends State<RunPage> {
             });
           }else if(((goalSpeed! -changeSpeedHurdle) < (speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)!)
           && ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < (goalSpeed! - changeHighSpeedHurdle))){
-            playbackBpm -= 1;
+            //playbackBpm -= 1;
             drumPlayer.setVolume(0.0);
             adjustSpeed();
             setState(() {
               speedMessage = 'ペースをちょっと遅くしています！';
             });
           } else{
-            drumPlayer.setVolume(1.0);
+            drumPlayer.setVolume(2.0);
             adjustSpeed();
             setState(() {
               speedMessage = 'ペースいい感じ!';

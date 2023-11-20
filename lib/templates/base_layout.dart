@@ -61,7 +61,7 @@ abstract class BaseLayout extends StatelessWidget {
             child: explanation != ""
                 ? SizedBox(
                     width: 280,
-                    height: 83,
+                    height: 130,
                     child: Center(
                       child: Text(
                         explanation,

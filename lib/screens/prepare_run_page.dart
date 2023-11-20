@@ -12,7 +12,7 @@ class PrepareRunPage extends BaseLayout {
   Widget mainContent(BuildContext context) {
     return Center(
       child: Padding(
-        padding: const EdgeInsets.all(20.0),
+        padding: const EdgeInsets.all(10.0),
       ),
     );
   }
