@@ -27,6 +27,7 @@ class _RunPageState extends State<RunPage> {
 
   AudioPlayer player = AudioPlayer();
   AudioPlayer drumPlayer = AudioPlayer();
+  AudioPlayer otherPlayer = AudioPlayer();
   speedMeterLogManager? speedMeterLog;
 
   double? goalSpeed;
@@ -54,16 +55,28 @@ class _RunPageState extends State<RunPage> {
           (index) => AudioSource.file(
               '${musicFilePath}/${musicPlaylist[index].fileName}')),
     );
-    player.setAudioSource(musicPlayQueue,
-        initialIndex: 0, initialPosition: Duration.zero);
+    
+//  サーバー上の音源をセット  
+//    player.setAudioSource(musicPlayQueue,
+//        initialIndex: 0, initialPosition: Duration.zero);
+    
+//　アプリのAudioフォルダの音源をセット
+    player.setAsset("audio/vocals.mp3");
     player.setLoopMode(LoopMode.all);
-    drumPlayer.setAsset("audio/drum_BPM160.mp3");
+    drumPlayer.setAsset("audio/drums.mp3");
     drumPlayer.setLoopMode(LoopMode.all);
+    otherPlayer.setAsset("audio/other.mp3");
+    otherPlayer.setLoopMode(LoopMode.all);
   }
 
   void adjustSpeed() {
-    player.setSpeed(playbackBpm / musicPlaylist[player.currentIndex ?? 0].bpm);
-    drumPlayer.setSpeed(playbackBpm/160);
+    //firebaseの音源の速度を変える
+    //player.setSpeed(playbackBpm / musicPlaylist[player.currentIndex ?? 0].bpm);
+
+    //アプリのAudioフォルダの音源の速度を変える
+    player.setSpeed(playbackBpm/158);
+    drumPlayer.setSpeed(playbackBpm/158);
+    otherPlayer.setSpeed(playbackBpm/158);
   }
 
   @override
@@ -80,6 +93,7 @@ class _RunPageState extends State<RunPage> {
     generateMusicPlaylist();
     player.play();
     drumPlayer.play();
+    otherPlayer.play();
     adjustSpeed();
     Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
@@ -94,6 +108,7 @@ class _RunPageState extends State<RunPage> {
           ){
             //playbackBpm += 1;
             drumPlayer.setVolume(0.0);
+            otherPlayer.setVolume(1.0);
             adjustSpeed();
             setState(() {
               speedMessage = 'ペースをちょっと速くしています！';
@@ -101,13 +116,15 @@ class _RunPageState extends State<RunPage> {
           }else if(((goalSpeed! -changeSpeedHurdle) < (speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)!)
           && ((speedMeterLog?.lowpassFilteredSpeed ?? goalSpeed)! < (goalSpeed! - changeHighSpeedHurdle))){
             //playbackBpm -= 1;
-            drumPlayer.setVolume(0.0);
+            drumPlayer.setVolume(1.0);
+            otherPlayer.setVolume(0.0);
             adjustSpeed();
             setState(() {
               speedMessage = 'ペースをちょっと遅くしています！';
             });
           } else{
-            drumPlayer.setVolume(2.0);
+            drumPlayer.setVolume(1.0);
+            otherPlayer.setVolume(1.0);
             adjustSpeed();
             setState(() {
               speedMessage = 'ペースいい感じ!';
@@ -127,6 +144,7 @@ class _RunPageState extends State<RunPage> {
   void dispose() {
     player.dispose();
     drumPlayer.dispose();
+    otherPlayer.dispose();
     super.dispose();
   }
 
@@ -186,7 +204,7 @@ class _RunPageState extends State<RunPage> {
                       IconButton(
                         onPressed: () {
                           setState(() {
-                            player.seekToPrevious();
+                            //player.seekToPrevious();
                           });
                         },
                         icon: Icon(Icons.fast_rewind),
@@ -205,6 +223,7 @@ class _RunPageState extends State<RunPage> {
                                 setState(() {
                                   player.play();
                                   drumPlayer.play();
+                                  otherPlayer.play();
                                 });
                               },
                               color: Colors.black,
@@ -217,6 +236,7 @@ class _RunPageState extends State<RunPage> {
                                 setState(() {
                                   player.pause();
                                   drumPlayer.pause();
+                                  otherPlayer.pause();
                                 });
                               },
                               color: Colors.black,
@@ -227,7 +247,7 @@ class _RunPageState extends State<RunPage> {
                       IconButton(
                         onPressed: () {
                           setState(() {
-                            player.seekToNext();
+                           // player.seekToNext();
                           });
                         },
                         icon: Icon(Icons.fast_forward),
@@ -260,6 +280,7 @@ class _RunPageState extends State<RunPage> {
                 child: PageTransitionButton('BPMを再設定', () {
                   player.dispose();
                   drumPlayer.dispose();
+                  otherPlayer.dispose();
                   Navigator.push<void>(
                     context,
                     MaterialPageRoute<void>(
@@ -273,6 +294,7 @@ class _RunPageState extends State<RunPage> {
                 child: PageTransitionButton('ランニング終了', () {
                   player.dispose();
                   drumPlayer.dispose();
+                  otherPlayer.dispose();
                   //speedMeterLog?.sendSpeedLog();
                   Navigator.push<void>(
                     context,
